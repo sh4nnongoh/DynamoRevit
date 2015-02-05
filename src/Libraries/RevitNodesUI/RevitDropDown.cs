@@ -119,7 +119,9 @@ namespace DSRevitNodesUI
         public FamilyInstanceParameters()
             : base("Parameter") 
         {
-            this.AddPort(PortType.Input, new PortData("f", Properties.Resources.PortDataFamilySymbolToolTip), 0);
+            InPortData.Add(new PortData("f", Properties.Resources.PortDataFamilTypeToolTip));
+            RegisterAllPorts();
+
             this.PropertyChanged += OnPropertyChanged;
         }
 
