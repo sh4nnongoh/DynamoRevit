@@ -36,7 +36,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="ProtoInterface">
-      <HintPath>..\..\..\..\Dynamo\extern\ProtoGeometry\ProtoInterface.dll</HintPath>
+      <HintPath>$(DYNAMOAPI)\ProtoInterface.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />

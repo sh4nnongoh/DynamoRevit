@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
 
-  <Product Id="6F1B7397-5DED-400D-90BE-135E05091DB3"
-           Name="Dynamo Revit 0.8.0"
+  <Product Id="6F1B7397-5DED-400D-90BE-135E05091DB4"
+           Name="Dynamo Revit 1.0.0"
            Language="1033"
-           Version="0.8.0"
+           Version="1.0"
            Manufacturer="Dynamo"
-           UpgradeCode="2baac14c-bcc4-423b-baec-7b3acecd6d12">
+           UpgradeCode="2baac14c-bcc4-423b-baec-7b3acecd6d13">
 
     <Package InstallerVersion="200"
              Compressed="yes"
@@ -22,7 +22,8 @@
     <Property Id='ARPNOMODIFY'>1</Property>
 
     <Property Id="DYNAMOLOCATION">
-      <RegistrySearch Id='DynamoRegistry_07' Type='raw' Win64='yes'
+      <!--RegistrySearch Id='DynamoRegistry_07' Type='raw' Win64='yes' -->
+      <RegistrySearch Id='DynamoRegistry_10' Type='raw' Win64='yes'
         Root='HKLM' Key='SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Dynamo [ProductVersion]' Name='InstallLocation' />
     </Property>
 
@@ -115,7 +116,9 @@
           </Directory>
         </Directory>
         <Directory Id="DYNAMO_PROGDATA" Name="Dynamo">
-          <Directory Id="PROGDATA_07" Name="0.7"/>
+          <!--Directory Id="PROGDATA_07" Name="0.7"/-->
+          <!--Directory Id="PROGDATA_09" Name="0.9"/-->
+          <Directory Id="PROGDATA_10" Name="1.0"/>
         </Directory>
       </Directory>
     </Directory>
@@ -123,13 +126,13 @@
 
     <!-- Install the Addin files-->
     <ComponentGroup Id="REVIT_2014" Directory="ADDINS_2014">
-      <Component Id="DynamoForRevit2015.addin" Guid="976a5fd6-0a53-4530-b9c8-1004fc7a6200">
-        <File Id="DynamoForRevit2015.addin" Name="Dynamo.addin" Source="$(var.base)\tools\install\Extra\DynamoForRevit2014.addin"/>
+      <Component Id="DynamoForRevit2014.addin" Guid="976a5fd6-0a53-4530-b9c8-1004fc7a6200">
+        <File Id="DynamoForRevit2014.addin" Name="Dynamo.addin" Source="$(var.base)\tools\install\Extra\DynamoForRevit2014.addin"/>
       </Component>
     </ComponentGroup>
     <ComponentGroup Id="REVIT_2015" Directory="ADDINS_2015">
-      <Component Id="DynamoForRevit2014.addin" Guid="fde9dc0b-4b8c-46d3-9950-42c9f66b5e60">
-        <File Id="DynamoForRevit2014.addin" Name="Dynamo.addin" Source="$(var.base)\tools\install\Extra\DynamoForRevit2015.addin"></File>
+      <Component Id="DynamoForRevit2015.addin" Guid="fde9dc0b-4b8c-46d3-9950-42c9f66b5e60">
+        <File Id="DynamoForRevit2015.addin" Name="Dynamo.addin" Source="$(var.base)\tools\install\Extra\DynamoForRevit2015.addin"></File>
       </Component>
     </ComponentGroup>
   </Fragment>

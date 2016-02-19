@@ -44,6 +44,8 @@
     <DebugSymbols>true</DebugSymbols>
     <NoWarn>618</NoWarn>
     <Prefer32Bit>false</Prefer32Bit>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="DynamoRaaSHelper">
