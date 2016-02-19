@@ -49,6 +49,8 @@ namespace DynamoAddinGenerator
 
         public static bool PathEquals(string path1, string path2)
         {
+            if (path1 != "" && path2 == "")
+                return false;
             return string.Equals(Path.GetFullPath(path1), Path.GetFullPath(path2), StringComparison.OrdinalIgnoreCase);
         }
     }
@@ -154,6 +156,7 @@ namespace DynamoAddinGenerator
                     continue;
 
                 var path = Path.Combine(p.InstallLocation, "DynamoRevit.dll");
+                /*
                 //Should be 0.6.3 only supported for Revit2014
                 if (File.Exists(path) && revit.VersionString == "Revit2014")
                     return new DynamoAddinData(revit, new DynamoInstall(p.InstallLocation));
@@ -161,7 +164,8 @@ namespace DynamoAddinGenerator
                 var subfolder = revit.VersionString.Insert(5, "_");
                 path = Path.Combine(p.InstallLocation, subfolder, "DynamoRevitVersionSelector.dll");
                 if (File.Exists(path))
-                    return new DynamoAddinData(revit, new DynamoInstall(p.InstallLocation));
+                    return new DynamoAddinData(revit, new DynamoInstall(p.InstallLocation));*/
+                return new DynamoAddinData(revit, new DynamoInstall(p.InstallLocation));
             }
 
             return null;

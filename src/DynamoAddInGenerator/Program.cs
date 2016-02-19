@@ -23,12 +23,14 @@ namespace DynamoAddinGenerator
                 else if (Directory.Exists(s))
                     debugPath = s;
             }
-
+            Console.WriteLine(debugPath);
             if (uninstall && string.IsNullOrEmpty(debugPath))
             {
                 //just use the executing assembly location
                 var assemblyPath = Assembly.GetExecutingAssembly().Location;
+                
                 debugPath = Path.GetDirectoryName(assemblyPath);
+                
             }
 
 
@@ -51,6 +53,8 @@ namespace DynamoAddinGenerator
             DeleteExistingAddins(prodColl);
 
             GenerateAddins(prodColl, dynamos, uninstall ? debugPath : string.Empty);
+
+            Console.ReadLine();
         }
 
         /// <summary>
