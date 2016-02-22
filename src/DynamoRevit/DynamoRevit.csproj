@@ -48,6 +48,9 @@
     </DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="DynamoInstallDetective">
+      <HintPath>..\..\tools\install\Extra\DynamoInstallDetective.dll</HintPath>
+    </Reference>
     <Reference Include="DynamoRaaSHelper">
       <HintPath>$(DynamoExternPath)\DynamoRaaS\DynamoRaaSHelper.dll</HintPath>
     </Reference>

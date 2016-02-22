@@ -23,7 +23,7 @@ namespace DynamoAddinGenerator
                 else if (Directory.Exists(s))
                     debugPath = s;
             }
-            Console.WriteLine(debugPath);
+            //Console.WriteLine(debugPath);
             if (uninstall && string.IsNullOrEmpty(debugPath))
             {
                 //just use the executing assembly location
@@ -33,15 +33,16 @@ namespace DynamoAddinGenerator
                 
             }
 
-
             var allProducts = RevitProductUtility.GetAllInstalledRevitProducts();
-            var prodColl = new RevitProductCollection(allProducts.Select(x => new DynamoRevitProduct(x)));
-            if (!prodColl.Products.Any())
+            var prodCollection = new RevitProductCollection(allProducts.Select(x => new DynamoRevitProduct(x)));
+            if (!prodCollection.Products.Any())
             {
                 Console.WriteLine("There were no Revit products found.");
                 return;
             }
 
+            
+            /*
             var dynamos = DynamoProducts.FindDynamoInstallations(debugPath);
             if (!dynamos.Products.Any())
             {
@@ -49,12 +50,13 @@ namespace DynamoAddinGenerator
                 DeleteExistingAddins(prodColl);
                 return;
             }
+            */
 
-            DeleteExistingAddins(prodColl);
+            DeleteExistingAddins(prodCollection);
 
-            GenerateAddins(prodColl, dynamos, uninstall ? debugPath : string.Empty);
+            GenerateAddins(prodCollection, debugPath, uninstall ? debugPath : string.Empty);
 
-            Console.ReadLine();
+            //Console.ReadLine();
         }
 
         /// <summary>
@@ -108,18 +110,32 @@ namespace DynamoAddinGenerator
         /// <param name="dynamos">DynamoProducts, a collection of installed Dynamo
         /// on this system.</param>
         /// <param name="dynamoUninstallPath">Path of Dynamo being uninstalled</param>
-        internal static void GenerateAddins(IRevitProductCollection products, DynamoProducts dynamos, string dynamoUninstallPath = "")
+        internal static void GenerateAddins(
+            IRevitProductCollection products, 
+            string dynamoRevitInstalledPath, 
+            string uninstallPath = "")
         {
             foreach (var prod in products.Products)
             {
+                if (DynamoInstall.PathEquals(dynamoRevitInstalledPath, uninstallPath))
+                    continue;
+
+                Console.WriteLine("Generating addins in {0}", prod.AddinsFolder);
+
+                var addinData = DynamoAddinData.Create(prod, debugPath);
+                if (null != addinData)
+                    GenerateDynamoAddin(addinData);
+                /*
                 Console.WriteLine("Generating addins in {0}", prod.AddinsFolder);
 
                 var addinData = DynamoAddinData.Create(prod, dynamos, dynamoUninstallPath);
                 if (null != addinData)
                     GenerateDynamoAddin(addinData);
+                */
             }
         }
-
+        
+        
         /// <summary>
         /// Generate a Dynamo.addin file.
         /// </summary>
