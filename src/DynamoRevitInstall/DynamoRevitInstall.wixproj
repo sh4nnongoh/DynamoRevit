@@ -40,7 +40,7 @@
     </WixExtension>
   </ItemGroup>
   <Import Project="$(WixTargetsPath)" />
-  <Target Name="BeforeBuild">
+  <Target Name="BeforeBuild"> 
     <GetAssemblyIdentity AssemblyFiles="$(DYNAMOAPI)\DynamoCore.dll">
       <Output TaskParameter="Assemblies" ItemName="AssemblyVersions" />
     </GetAssemblyIdentity>

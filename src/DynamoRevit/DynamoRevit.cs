@@ -152,17 +152,16 @@ namespace Dynamo.Applications
         /// Uses DynamoInstallDetective.dll to search the registry for Dynamo Installations.
         /// </summary>
         /// <returns>Returns the full path to the Dynamo Core.</returns>
-        /// 
-        internal static string DynamoCorePath()
+        private static string dynamoCoreDirectory()
         {
-            var ThisDynamoVersion = Assembly.GetExecutingAssembly().GetName().Version;
+            var dynamoVersion = Assembly.GetExecutingAssembly().GetName().Version;
 
             var dynamoProducts = DynamoInstallDetective.Utilities.FindDynamoInstallations("");
             foreach (KeyValuePair<string, Tuple<int, int, int, int>> prod in dynamoProducts)
             {
                 var installedVersion = (prod.Value.Item1.ToString() + "." + prod.Value.Item2.ToString());
 
-                if (installedVersion == ThisDynamoVersion.ToString(2))
+                if (installedVersion == dynamoVersion.ToString(2))
                 {
                     return prod.Key;
                 }
@@ -232,17 +231,11 @@ namespace Dynamo.Applications
         /// </summary>
         private static void UpdateSystemPathForProcess()
         {
-            //var assemblyLocation = Assembly.GetExecutingAssembly().Location;
-            //var assemblyDirectory = Path.GetDirectoryName(assemblyLocation);
-            //var parentDirectory = Directory.GetParent(assemblyDirectory);
-            //var corePath = parentDirectory.FullName;
-            var corePath = DynamoCorePath();
-
-
+            var coreDirectory = dynamoCoreDirectory();
             var path =
                     Environment.GetEnvironmentVariable(
                         "Path",
-                        EnvironmentVariableTarget.Process) + ";" + corePath;
+                        EnvironmentVariableTarget.Process) + ";" + coreDirectory;
             Environment.SetEnvironmentVariable("Path", path, EnvironmentVariableTarget.Process);
         }
 
@@ -286,11 +279,7 @@ namespace Dynamo.Applications
 
         private static RevitDynamoModel InitializeCoreModel(DynamoRevitCommandData commandData)
         {
-            //var assemblyLocation = Assembly.GetExecutingAssembly().Location;
-            //var assemblyDirectory = Path.GetDirectoryName(assemblyLocation);
-            //var parentDirectory = Directory.GetParent(assemblyDirectory);
-            //var corePath = parentDirectory.FullName;
-            var corePath = DynamoCorePath();
+            var coreDirectory = dynamoCoreDirectory();
 
             var umConfig = UpdateManagerConfiguration.GetSettings(new DynamoRevitLookUp());
             Debug.Assert(umConfig.DynamoLookUp != null);
@@ -298,7 +287,7 @@ namespace Dynamo.Applications
             return RevitDynamoModel.Start(
                 new RevitDynamoModel.RevitStartConfiguration()
                 {
-                    GeometryFactoryPath = GetGeometryFactoryPath(corePath),
+                    GeometryFactoryPath = GetGeometryFactoryPath(coreDirectory),
                     PathResolver = new RevitPathResolver(),
                     Context = GetRevitContext(commandData),
                     SchedulerThread = new RevitSchedulerThread(commandData.Application),

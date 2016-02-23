@@ -218,16 +218,16 @@ namespace Dynamo.Applications
         /// Uses DynamoInstallDetective.dll to search the registry for Dynamo Installations.
         /// </summary>
         /// <returns>Returns the full path to the Dynamo Core.</returns>
-        private static string dynamoCorePath()
+        private static string dynamoCoreDirectory()
         {
-            var ThisDynamoVersion = Assembly.GetExecutingAssembly().GetName().Version;
+            var dynamoVersion = Assembly.GetExecutingAssembly().GetName().Version;
 
             var dynamoProducts = DynamoInstallDetective.Utilities.FindDynamoInstallations("");
             foreach (KeyValuePair<string, Tuple<int, int, int, int>> prod in dynamoProducts)
             {
                 var installedVersion = (prod.Value.Item1.ToString() + "." + prod.Value.Item2.ToString());
 
-                if (installedVersion == ThisDynamoVersion.ToString(2))
+                if (installedVersion == dynamoVersion.ToString(2))
                 {
                     return prod.Key;
                 }
@@ -239,12 +239,11 @@ namespace Dynamo.Applications
         /// <summary>
         /// Uses Assembly reference to obtain the Revit folder.
         /// </summary>
-        /// <returns>Returns the full path to the Dynamo Revit folder.</returns>
-        internal static string dynamoRevitPath()
+        /// <returns>Returns the full path to Dynamo Revit folder.</returns>
+        private static string assemblyDirectory()
         {
             var assemblyLocation = Assembly.GetExecutingAssembly().Location;
             var assemblyDirectory = Path.GetDirectoryName(assemblyLocation);
-
             return assemblyDirectory;
         }
 
@@ -265,35 +264,16 @@ namespace Dynamo.Applications
 
             try
             {
-                var assemblyLocation = Assembly.GetExecutingAssembly().Location;
-                var assemblyDirectory = Path.GetDirectoryName(assemblyLocation);
-
                 // Try "Revit_20xx" folder first...
-                assemblyPath = Path.Combine(assemblyDirectory, assemblyName);
+                assemblyPath = Path.Combine(assemblyDirectory(), assemblyName);
                 if (!File.Exists(assemblyPath))
                 {
                     // If assembly cannot be found, try in "Dynamo 0.x" folder.
-                    var dynCorePath = dynamoCorePath();
+                    var dynCorePath = dynamoCoreDirectory();
                     assemblyPath = Path.Combine(dynCorePath, assemblyName);
                 }
 
                 return (File.Exists(assemblyPath) ? Assembly.LoadFrom(assemblyPath) : null);
-
-                /*
-                var assemblyLocation = Assembly.GetExecutingAssembly().Location;
-                var assemblyDirectory = Path.GetDirectoryName(assemblyLocation);
-
-                // Try "Dynamo 0.x\Revit_20xx" folder first...
-                assemblyPath = Path.Combine(assemblyDirectory, assemblyName);
-                if (!File.Exists(assemblyPath))
-                {
-                    // If assembly cannot be found, try in "Dynamo 0.x" folder.
-                    var parentDirectory = Directory.GetParent(assemblyDirectory);
-                    assemblyPath = Path.Combine(parentDirectory.FullName, assemblyName);
-                }
-
-                return (File.Exists(assemblyPath) ? Assembly.LoadFrom(assemblyPath) : null);
-                */
             }
             catch (Exception ex)
             {
