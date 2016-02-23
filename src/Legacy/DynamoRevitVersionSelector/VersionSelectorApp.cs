@@ -58,6 +58,7 @@ namespace Dynamo.Applications
             return Path.Combine(product.InstallLocation, string.Format("Revit_{0}", revitVersion), "DynamoRevitDS.dll");
         }
         */
+        /*
         internal static string GetDynamoRevitPath(DynamoProduct product, string debugPath, string revitVersion)
         {
             if (product.VersionInfo < new Version(0, 7))
@@ -65,21 +66,40 @@ namespace Dynamo.Applications
 
             return Path.Combine(debugPath, "DynamoRevitDS.dll");
         }
-
-        public Result OnStartup(UIControlledApplication application)
+        */
+        /// <summary>
+        /// Uses Assembly reference to obtain the Revit folder.
+        /// </summary>
+        /// <returns>Returns the full path to the Dynamo Revit folder.</returns>
+        internal static string dynamoRevitPath()
         {
-            uiApplication = application;
-            var revitVersion = application.ControlledApplication.VersionNumber;
-            //Get the default selection data
-            var selectorData = VersionSelectorData.ReadFromRegistry(revitVersion);
-            
             var revitFolder =
                 new DirectoryInfo(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
             var debugPath = revitFolder.FullName;
-            //var programFiles = revitFolder.Parent.Parent.FullName;
-            //var dynFolder = programFiles + @"\Dynamo 1.0";
-            var dynamoProducts = FindDynamoInstallations(revitFolder.Parent.FullName);
 
+            return Path.Combine(debugPath, "DynamoRevitDS.dll");
+        }
+        
+        public Result OnStartup(UIControlledApplication application)
+        {
+            uiApplication = application;
+                    
+            var dynRevitPath = dynamoRevitPath();
+            if (!File.Exists(dynRevitPath))
+                return Result.Failed;
+            //var dynamoProducts = FindDynamoInstallations(revitFolder.Parent.FullName);
+            var dynamoCorePath = getDynamoCorePath();
+            if (dynamoCorePath == string.Empty)
+                return Result.Failed;
+
+            var dynRevitAssmebly = Assembly.LoadFrom(dynRevitPath);
+            var revitApp = dynRevitAssmebly.CreateInstance("Dynamo.Applications.DynamoRevitApp");
+            revitApp.GetType().GetMethod("OnStartup").Invoke(revitApp, new object[] { application });
+
+            /*
+            var revitVersion = application.ControlledApplication.VersionNumber;
+            //Get the default selection data
+            var selectorData = VersionSelectorData.ReadFromRegistry(revitVersion);
             Products = new List<DynamoProduct>();
             int index = -1;
             var selectedVersion = selectorData.SelectedVersion.ToString(2);
@@ -123,17 +143,38 @@ namespace Dynamo.Applications
                 var revitApp = ass.CreateInstance("Dynamo.Applications.DynamoRevitApp");
                 revitApp.GetType().GetMethod("OnStartup").Invoke(revitApp, new object[] { application });
             }
-
+            */
             return Result.Succeeded;
         }
 
         public static bool LaunchDynamoCommand(int index, ExternalCommandData commandData)
         {
+            /*
             if (index >= Products.Count)
                 return false; //Index out of range
-
+                */
             try
             {
+                var dynRevitPath = dynamoRevitPath();
+                ribbonPanel.Visible = false;
+
+                //Initialize application
+                var ass = Assembly.LoadFrom(dynRevitPath);
+                var revitApp = ass.CreateInstance("Dynamo.Applications.DynamoRevitApp");
+                revitApp.GetType()
+                    .GetMethod("OnStartup")
+                    .Invoke(revitApp, new object[] { uiApplication });
+
+                //Invoke command
+                string message = string.Empty;
+                var revitCmd = ass.CreateInstance("Dynamo.Applications.DynamoRevit");
+                revitCmd.GetType()
+                    .GetMethod("Execute")
+                    .Invoke(revitCmd, new object[] { commandData, message, null });
+
+                uiApplication = null; //release application, no more needed.
+                return true;
+                /*
                 var revitFolder =
                 new DirectoryInfo(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
                 //var debugPath = revitFolder.Parent.FullName;
@@ -177,6 +218,7 @@ namespace Dynamo.Applications
 
                 uiApplication = null; //release application, no more needed.
                 return true;
+                */
             }
             catch (Exception)
             {
@@ -187,6 +229,7 @@ namespace Dynamo.Applications
             }
         }
 
+        /*
         private SplitButton AddSplitButtonGroup(RibbonPanel panel)
         {
             var versionData = new SplitButtonData("versions", Resources.DynamoVersions);
@@ -225,12 +268,37 @@ namespace Dynamo.Applications
             button.CurrentButton = item;
             return button;
         }
+        */
 
         public Result OnShutdown(UIControlledApplication application)
         {
             return Result.Succeeded;
         }
 
+        /// <summary>
+        /// Uses DynamoInstallDetective.dll to search the registry for Dynamo Installations.
+        /// </summary>
+        /// <returns>Returns the full path to the Dynamo Core.</returns>
+        /// 
+        private static string getDynamoCorePath()
+        {
+            var ThisDynamoVersion = Assembly.GetExecutingAssembly().GetName().Version;
+
+            var dynamoProducts = DynamoInstallDetective.Utilities.FindDynamoInstallations("");
+            foreach (KeyValuePair<string, Tuple<int, int, int, int>> prod in dynamoProducts)
+            {
+                var installedVersion = (prod.Value.Item1.ToString() + "." + prod.Value.Item2.ToString());
+
+                if (installedVersion == ThisDynamoVersion.ToString(2))
+                {
+                    return prod.Key;
+                }
+            }
+
+            return string.Empty;
+        }
+
+        /*
         private static IEnumerable<DynamoProduct> FindDynamoInstallations(string debugPath)
         {
             var assembly = Assembly.LoadFrom(Path.Combine(debugPath, "DynamoInstallDetective.dll"));
@@ -256,7 +324,7 @@ namespace Dynamo.Applications
                         p => new DynamoProduct() { InstallLocation = p.Key, 
                             VersionInfo = new Version(p.Value.Item1, p.Value.Item2, p.Value.Item3, p.Value.Item4) });
         }
-
+        */
     }
 
     [Transaction(TransactionMode.Automatic)]

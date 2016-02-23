@@ -148,6 +148,29 @@ namespace Dynamo.Applications
         /// </summary>
         private const string JournalDynPathKey = "dynPath";
 
+        /// <summary>
+        /// Uses DynamoInstallDetective.dll to search the registry for Dynamo Installations.
+        /// </summary>
+        /// <returns>Returns the full path to the Dynamo Core.</returns>
+        /// 
+        internal static string DynamoCorePath()
+        {
+            var ThisDynamoVersion = Assembly.GetExecutingAssembly().GetName().Version;
+
+            var dynamoProducts = DynamoInstallDetective.Utilities.FindDynamoInstallations("");
+            foreach (KeyValuePair<string, Tuple<int, int, int, int>> prod in dynamoProducts)
+            {
+                var installedVersion = (prod.Value.Item1.ToString() + "." + prod.Value.Item2.ToString());
+
+                if (installedVersion == ThisDynamoVersion.ToString(2))
+                {
+                    return prod.Key;
+                }
+            }
+
+            return string.Empty;
+        }
+
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             return ExecuteCommand(new DynamoRevitCommandData(commandData));
@@ -213,7 +236,7 @@ namespace Dynamo.Applications
             //var assemblyDirectory = Path.GetDirectoryName(assemblyLocation);
             //var parentDirectory = Directory.GetParent(assemblyDirectory);
             //var corePath = parentDirectory.FullName;
-            var corePath = getDynamoCorePath();
+            var corePath = DynamoCorePath();
 
 
             var path =
@@ -236,109 +259,6 @@ namespace Dynamo.Applications
         }
 
         #region Initialization
-        /*
-        internal struct DynamoProduct
-        {
-            public string InstallLocation;
-            public Version VersionInfo;
-
-            public string VersionString
-            {
-                get
-                {
-                    return string.Format(
-                        @"Dynamo {0}", VersionInfo.ToString(4));
-                }
-            }
-        }
-
-        
-        private static IEnumerable<DynamoProduct> FindDynamoInstallations(string debugPath)
-        {
-            var assembly = Assembly.LoadFrom(Path.Combine(debugPath, "DynamoInstallDetective.dll"));
-            var type = assembly.GetType("DynamoInstallDetective.Utilities");
-
-            var installationsMethod = type.GetMethod(
-                "FindDynamoInstallations",
-                BindingFlags.Public | BindingFlags.Static);
-
-            if (installationsMethod == null)
-            {
-                throw new MissingMethodException("Method 'DynamoInstallDetective.Utilities.FindDynamoInstallations' not found");
-            }
-
-            var methodParams = new object[] { debugPath };
-            var installs = installationsMethod.Invoke(null, methodParams) as IEnumerable;
-            if (null == installs)
-                return null;
-
-            return
-                installs.Cast<KeyValuePair<string, Tuple<int, int, int, int>>>()
-                    .Select(
-                        p => new DynamoProduct()
-                        {
-                            InstallLocation = p.Key,
-                            VersionInfo = new Version(p.Value.Item1, p.Value.Item2, p.Value.Item3, p.Value.Item4)
-                        });
-        }
-
-        private static string getDynamoCorePath()
-        {
-            var assemblyLocation = Assembly.GetExecutingAssembly().Location;
-            var assemblyDirectory = Path.GetDirectoryName(assemblyLocation);
-            var parentDirectory = Directory.GetParent(assemblyDirectory);
-            var dynamoRevitCorePath = parentDirectory.FullName;
-   
-            var dynamoProducts = FindDynamoInstallations(dynamoRevitCorePath);
-
-            var ThisDynamoVersion = Assembly.GetExecutingAssembly().GetName().Version;
-            const string RegKey64 = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\";
-            var regKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
-            regKey = regKey.OpenSubKey(RegKey64);
-
-            var key = string.Format(@"Dynamo {0}.{1}", ThisDynamoVersion.Major, ThisDynamoVersion.Minor);
-            regKey = regKey.OpenSubKey(key);
-            if (regKey == null)
-                return string.Empty;
-
-
-            Products = new List<DynamoProduct>();
-            int index = -1;
-            var selectedVersion = selectorData.SelectedVersion.ToString(2);
-            foreach (var p in dynamoProducts)
-            {
-                //var path = VersionLoader.GetDynamoRevitPath(p, revitVersion);
-                var path = VersionLoader.GetDynamoRevitPath(p, debugPath, revitVersion);
-                if (!File.Exists(path))
-                    continue;
-
-                if (p.VersionInfo.ToString(2) == selectedVersion)
-                    index = Products.Count;
-
-                Products.Add(p);
-            }
-            return string.Empty;
-        }
-        */
-
-        private static string getDynamoCorePath()
-        {
-            var ThisDynamoVersion = Assembly.GetExecutingAssembly().GetName().Version;
-
-            var dynamoProducts = DynamoInstallDetective.Utilities.FindDynamoInstallations("");
-            foreach (KeyValuePair<string, Tuple<int, int, int, int>> prod in dynamoProducts)
-            {
-                var installedVersion = (prod.Value.Item1.ToString() + "." + prod.Value.Item2.ToString());
-
-                if (installedVersion == ThisDynamoVersion.ToString(2))
-                {
-                    return prod.Key;
-                }
-            }
-
-            return string.Empty;
-        }
-
         /// <summary>
         /// DynamoShapeManager.dll is a companion assembly of Dynamo core components,
         /// we do not want a static reference to it (since the Revit add-on can be 
@@ -370,7 +290,7 @@ namespace Dynamo.Applications
             //var assemblyDirectory = Path.GetDirectoryName(assemblyLocation);
             //var parentDirectory = Directory.GetParent(assemblyDirectory);
             //var corePath = parentDirectory.FullName;
-            var corePath = getDynamoCorePath();
+            var corePath = DynamoCorePath();
 
             var umConfig = UpdateManagerConfiguration.GetSettings(new DynamoRevitLookUp());
             Debug.Assert(umConfig.DynamoLookUp != null);
