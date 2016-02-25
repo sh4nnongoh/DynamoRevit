@@ -1,0 +1,139 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+    <Fragment>
+        <DirectoryRef Id="DYNAMOREVIT_INSTALLDIR">
+            <Directory Id="dirFD61DF07BFFF2529B10307810AAB5503" Name="Revit_2015" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <ComponentGroup Id="RELEASE">
+            <Component Id="cmp07F65476F1B725CC1617178EBD28535B" Directory="DYNAMOREVIT_INSTALLDIR" Guid="{2184A8DB-F35D-471B-AF34-AB543EBFABAC}">
+                <File Id="fil9AEC9BCF65770BC1A0775C324D019375" KeyPath="yes" Source="$(var.release)\DynamoAddInGenerator.exe" />
+            </Component>
+            <Component Id="cmp0AADFC9E322AD21D26ED96462706B8F9" Directory="DYNAMOREVIT_INSTALLDIR" Guid="{175D7A26-1A0A-49A0-9E30-9F5270B941AA}">
+                <File Id="filCC3B3160C778E5C0433105B10C6A71BA" KeyPath="yes" Source="$(var.release)\DynamoInstallDetective.dll" />
+            </Component>
+            <Component Id="cmp22309B2F539532EA00D4AEC336AB74D7" Directory="DYNAMOREVIT_INSTALLDIR" Guid="{741AE48D-4992-4AA7-8739-F0F26F875244}">
+                <File Id="fil4709020FBD8F2D55E269E81657BAB4A9" KeyPath="yes" Source="$(var.release)\RevitAddinUtility.dll" />
+            </Component>
+            <Component Id="cmp2BD217A29149C0BF1A33BA8CBBE1BE95" Directory="dirFD61DF07BFFF2529B10307810AAB5503" Guid="{F19537E0-770C-4FBC-8B98-4341929336AB}">
+                <File Id="fil574882C7B94F7DFF10F1EE06A21660C7" KeyPath="yes" Source="$(var.release)\Revit_2015\AssemblyInfoGenerator.dll" />
+            </Component>
+            <Component Id="cmp548F16FB3E44FD2AE620438B9DC73082" Directory="dirFD61DF07BFFF2529B10307810AAB5503" Guid="{61243241-2B95-4E26-A276-FD82D0536698}">
+                <File Id="fil891162601321417EB759EA8F262DBC91" KeyPath="yes" Source="$(var.release)\Revit_2015\DSRevitNodesUI.customization.dll" />
+            </Component>
+            <Component Id="cmp6FF6BAFC3490DF6622E8425AC8A25AF0" Directory="dirFD61DF07BFFF2529B10307810AAB5503" Guid="{AB4C4F1A-D5A9-45F6-992D-B33CA2CEF018}">
+                <File Id="filAC615E29AE20C6E8BFE0E7F9E102709E" KeyPath="yes" Source="$(var.release)\Revit_2015\DSRevitNodesUI.dll" />
+            </Component>
+            <Component Id="cmpA2DE6D35FAA6C68114FDFE23D53AAFAD" Directory="dirFD61DF07BFFF2529B10307810AAB5503" Guid="{57ECB869-7852-4E9F-B9A5-18352C37BEC0}">
+                <File Id="filF9A405FDC674DEE6A84C294B9899FD90" KeyPath="yes" Source="$(var.release)\Revit_2015\DynamoRaaS.customization.dll" />
+            </Component>
+            <Component Id="cmpA829FB5EAEBA806C02FFDFB18F6E571D" Directory="dirFD61DF07BFFF2529B10307810AAB5503" Guid="{ECCC692A-DD3B-4582-8DAE-516ADB25B9DD}">
+                <File Id="fil14DD6A713A28D3805EE5F49461CC5B2A" KeyPath="yes" Source="$(var.release)\Revit_2015\DynamoRaaSHelper.dll" />
+            </Component>
+            <Component Id="cmp60B6C8B7CBFFA1F6D682B6CEBA7F80E0" Directory="dirFD61DF07BFFF2529B10307810AAB5503" Guid="{00A89D95-0344-4024-ABC0-4F90AA124B6F}">
+                <File Id="fil621D8FCAA0A7D549BB39544102A41356" KeyPath="yes" Source="$(var.release)\Revit_2015\DynamoRevitDS.dll" />
+            </Component>
+            <Component Id="cmpA7D8A83ECD64DCBC5F8A31009B37446B" Directory="dirFD61DF07BFFF2529B10307810AAB5503" Guid="{D96FF17C-48AF-42F8-83E3-6B42B0A412CB}">
+                <File Id="fil17B03B27E2CC6B693239BBE6B2B6C2AD" KeyPath="yes" Source="$(var.release)\Revit_2015\DynamoRevitVersionSelector.dll" />
+            </Component>
+            <Component Id="cmp8F2213511DDB8496A6EEAE01FF1D5B9E" Directory="dirFD61DF07BFFF2529B10307810AAB5503" Guid="{694B16E9-2460-4568-A391-33A0FEA6743C}">
+                <File Id="filBFC2BC6AF38FDF6511B964A173618449" KeyPath="yes" Source="$(var.release)\Revit_2015\DynamoUtilities.dll" />
+            </Component>
+            <Component Id="cmp5DC093BA8B6EC0082E4D523044AD0D45" Directory="dirFD61DF07BFFF2529B10307810AAB5503" Guid="{29B4024D-9381-48A0-AB21-8E4E7834D292}">
+                <File Id="filA46CA0098326823D75A138A72C88EEFE" KeyPath="yes" Source="$(var.release)\Revit_2015\GregRevitAuth.dll" />
+            </Component>
+            <Component Id="cmp3D93338E57C0EE2C9463B3291B0D9D5E" Directory="dirFD61DF07BFFF2529B10307810AAB5503" Guid="{D14AFF44-AC9F-4888-8AA6-15EBDBD31532}">
+                <File Id="filAD37042C79EDDA6EFAC69FBB315951A8" KeyPath="yes" Source="$(var.release)\Revit_2015\ICSharpCode.AvalonEdit.dll" />
+            </Component>
+            <Component Id="cmp7C43ECC5DF8BFB2C0BF307752475BF35" Directory="dirFD61DF07BFFF2529B10307810AAB5503" Guid="{8CAEB6B5-2649-4778-A753-AD7ED7325395}">
+                <File Id="filCA43351AA6B02B08765B3B70C7DF501F" KeyPath="yes" Source="$(var.release)\Revit_2015\ICSharpCode.AvalonEdit.xml" />
+            </Component>
+            <Component Id="cmp550CF8F02A9B2BC0D2DD68B19FFA8B1C" Directory="dirFD61DF07BFFF2529B10307810AAB5503" Guid="{8B321784-AE02-4C6F-B961-B9992B700FD4}">
+                <File Id="filA08E95AE8DD2BE3F148D828995DF0867" KeyPath="yes" Source="$(var.release)\Revit_2015\JobMonitor.dll" />
+            </Component>
+            <Component Id="cmpCB24CE16DFDCACA0D691B81BAA4B68B3" Directory="dirFD61DF07BFFF2529B10307810AAB5503" Guid="{CE2C60B3-35C9-4343-A189-85FB83D97215}">
+                <File Id="fil42FC181335EA52578A4707683C936BF5" KeyPath="yes" Source="$(var.release)\Revit_2015\Microsoft.Dynamic.dll" />
+            </Component>
+            <Component Id="cmp289BCEB3344EF7AFFA27AEFA1B0386C5" Directory="dirFD61DF07BFFF2529B10307810AAB5503" Guid="{1E757479-D5C2-4054-A3AF-86C18511B76A}">
+                <File Id="fil38A4BA56A41634BA94AFD234146D1E95" KeyPath="yes" Source="$(var.release)\Revit_2015\Microsoft.Dynamic.xml" />
+            </Component>
+            <Component Id="cmp3B5FB95715557BC819DD0E2B349005DA" Directory="dirFD61DF07BFFF2529B10307810AAB5503" Guid="{0D59A1AE-81AB-496C-910D-260F9E202724}">
+                <File Id="filB47E801F53814CBB4F0868DD978A296D" KeyPath="yes" Source="$(var.release)\Revit_2015\Microsoft.Scripting.dll" />
+            </Component>
+            <Component Id="cmp92A96B1C61D1398E2EAA645813B3CFF7" Directory="dirFD61DF07BFFF2529B10307810AAB5503" Guid="{B3CDBE78-BE9E-42A1-AC62-862260D49070}">
+                <File Id="filEB692185BE5614356A7FC4152903627C" KeyPath="yes" Source="$(var.release)\Revit_2015\Microsoft.Scripting.xml" />
+            </Component>
+            <Component Id="cmpB5A751022BC956A30CFF5977DC09E9B6" Directory="dirFD61DF07BFFF2529B10307810AAB5503" Guid="{B737315D-1210-4D13-9A5C-E5CB80408D5A}">
+                <File Id="filCD1725A2EA5BDFD82C131340CF76D27E" KeyPath="yes" Source="$(var.release)\Revit_2015\Migrations.dll" />
+            </Component>
+            <Component Id="cmp84D16ACCA448833AB6EE9245E7B25FFD" Directory="dirFD61DF07BFFF2529B10307810AAB5503" Guid="{0A6A7CFD-32F5-4092-A300-5BC80E68DB6E}">
+                <File Id="fil092810A9352204A2778A69199575CE7F" KeyPath="yes" Source="$(var.release)\Revit_2015\RevitNodes.customization.dll" />
+            </Component>
+            <Component Id="cmp0FEEC5742D15FD8388D9E44BDD3C41FD" Directory="dirFD61DF07BFFF2529B10307810AAB5503" Guid="{CD7BD704-6F48-48D3-88F6-DC16CBFB12B0}">
+                <File Id="fil8B918BC372D63675394721FDE1B81FED" KeyPath="yes" Source="$(var.release)\Revit_2015\RevitNodes.dll" />
+            </Component>
+            <Component Id="cmp94B52195FDC5E16271EB25A8A0205542" Directory="dirFD61DF07BFFF2529B10307810AAB5503" Guid="{0EB91A59-3FF8-4CC2-8DEB-0CE16BFA3863}">
+                <File Id="fil6FE19DDF9C019B639E3BA4B338397B6A" KeyPath="yes" Source="$(var.release)\Revit_2015\RevitNodes.Migrations.xml" />
+            </Component>
+            <Component Id="cmpCAB4E51F77567E7FC8D4D61155AA3561" Directory="dirFD61DF07BFFF2529B10307810AAB5503" Guid="{B316908F-F86C-4DA7-8962-B9FEC4BC09BD}">
+                <File Id="fil6AEB62B601869D23CEEDE793BB3E5452" KeyPath="yes" Source="$(var.release)\Revit_2015\RevitNodes_DynamoCustomization.xml" />
+            </Component>
+            <Component Id="cmp67BD9AAE4FA00801E6B69D8EE16297BB" Directory="dirFD61DF07BFFF2529B10307810AAB5503" Guid="{8C8C30CD-0D83-4C74-8F28-35277AF7FD4C}">
+                <File Id="fil662ED1D7B71B54039EAF23CBBEF6EFB6" KeyPath="yes" Source="$(var.release)\Revit_2015\RevitRaaS.dll" />
+            </Component>
+            <Component Id="cmpE9B523DA03E903B249004C3EDBAE1BC2" Directory="dirFD61DF07BFFF2529B10307810AAB5503" Guid="{3BBE428F-B751-4D2C-A393-E379460EC7E8}">
+                <File Id="filAA2F76F4760B27BC4905E5612F4910F0" KeyPath="yes" Source="$(var.release)\Revit_2015\RevitRaaS.dll.config" />
+            </Component>
+            <Component Id="cmpACC14A29CD2E38026BF0CB62946CF184" Directory="dirFD61DF07BFFF2529B10307810AAB5503" Guid="{63DCCFDB-C245-4C40-90F2-B17849ECD691}">
+                <File Id="fil7D17C0101A6556682C7CD77D133C42E7" KeyPath="yes" Source="$(var.release)\Revit_2015\RevitServices.dll" />
+            </Component>
+            <Component Id="cmpA244E9B5A8B4C0E5CEB57ECCC283B0D9" Directory="dirFD61DF07BFFF2529B10307810AAB5503" Guid="{5A69BA6B-34C0-4971-A20D-12B1B1CE57F0}">
+                <File Id="fil050E9284E7DE04F34C188DCB244C9703" KeyPath="yes" Source="$(var.release)\Revit_2015\SDF.dll" />
+            </Component>
+            <Component Id="cmpBCF0ABEA0BD5DA2019AD3A0E2B45ED1C" Directory="dirFD61DF07BFFF2529B10307810AAB5503" Guid="{72C8C8B9-3479-4525-A608-651F87E1CF50}">
+                <File Id="filE15906FA1DC6D2B1B883804B2D8169DB" KeyPath="yes" Source="$(var.release)\Revit_2015\SimpleRaaS.customization.dll" />
+            </Component>
+            <Component Id="cmp0CAD24E02C905E491514F48CA06A1AB9" Directory="dirFD61DF07BFFF2529B10307810AAB5503" Guid="{DFAEC988-5A13-4623-A70B-368EDC51C866}">
+                <File Id="filCEB1BCBA1FFBEACDBDA5D57055B1C18E" KeyPath="yes" Source="$(var.release)\Revit_2015\SimpleRaaS.dll" />
+            </Component>
+            <Component Id="cmp9F87EF6D5DEB109CF8E9687762B3D7B0" Directory="dirFD61DF07BFFF2529B10307810AAB5503" Guid="{FF6598E3-9208-4246-B39E-BACB175DFB42}">
+                <File Id="fil9ADCD714082AD33872023749E0818817" KeyPath="yes" Source="$(var.release)\Revit_2015\SimpleRaaS_DynamoCustomization.xml" />
+            </Component>
+            <Component Id="cmp8D771B016DE04F67F1888DC63DEBE2B5" Directory="dir416CF26834D120375CD850086E850D6B" Guid="{9FB16CB7-AA2B-42F8-95C1-D50B87F988F2}">
+                <File Id="fil3AE7090FC7EC29E44BDAD8899108714B" KeyPath="yes" Source="$(var.release)\Revit_2015\en-US\DSRevitNodesUI.resources.dll" />
+            </Component>
+            <Component Id="cmpEE0DDED0ADC8397A3875AD9B541AE9B9" Directory="dir416CF26834D120375CD850086E850D6B" Guid="{A8CF6F4F-C35B-4429-9DAC-E56674DBAEA8}">
+                <File Id="filD7C49E889DA159912CFB638507E37125" KeyPath="yes" Source="$(var.release)\Revit_2015\en-US\DynamoRaaS.resources.dll" />
+            </Component>
+            <Component Id="cmpD1925FCDB8F6308FB33DA36072E12073" Directory="dir416CF26834D120375CD850086E850D6B" Guid="{1FEBDA53-E40D-421A-981E-645FE87B988F}">
+                <File Id="fil1F81DAAB7AAEB38163E5294E79EF87A3" KeyPath="yes" Source="$(var.release)\Revit_2015\en-US\DynamoRevitDS.resources.dll" />
+            </Component>
+            <Component Id="cmp8263ADEF7551C5A83D688C27644E51B3" Directory="dir416CF26834D120375CD850086E850D6B" Guid="{0F683C3E-B61A-41CD-AE54-36BF93C01022}">
+                <File Id="filF15D9E00F2175E3CB5D4B1448F3A1C5A" KeyPath="yes" Source="$(var.release)\Revit_2015\en-US\DynamoRevitVersionSelector.resources.dll" />
+            </Component>
+            <Component Id="cmp33EE5162F1ABE5E76050B946E0BE88A4" Directory="dir416CF26834D120375CD850086E850D6B" Guid="{04FA22CC-ED50-4993-BC2A-7EFAB87478CA}">
+                <File Id="fil6FE206B39B8911F415F4AC993040478C" KeyPath="yes" Source="$(var.release)\Revit_2015\en-US\RevitNodes.resources.dll" />
+            </Component>
+            <Component Id="cmp8AF54BA00EE37E18B21DE930EC302A21" Directory="dir416CF26834D120375CD850086E850D6B" Guid="{117C07D4-5CC7-456D-888E-74E7EFB74C8B}">
+                <File Id="filB00C8E5FB9290A139150A99952556948" KeyPath="yes" Source="$(var.release)\Revit_2015\en-US\RevitRaaS.resources.dll" />
+            </Component>
+            <Component Id="cmp7973EC9A56224015F04806504362A9BE" Directory="dir416CF26834D120375CD850086E850D6B" Guid="{091AEF71-9615-47D6-A0B4-37EA8855D3C0}">
+                <File Id="fil507ED93B51834A8B359CC6C5542F7D10" KeyPath="yes" Source="$(var.release)\Revit_2015\en-US\SimpleRaaS.xml" />
+            </Component>
+            <Component Id="cmp7929312CEE6F40A783F7F0732E25A983" Directory="dirDB532A3EEA275C4AFE8E3E65F4DC091A" Guid="{E7BA7F8F-71AD-42DE-B2ED-F14072E2E8ED}">
+                <File Id="fil5DF1C5FBCE86ECE275B61AC22F602F20" KeyPath="yes" Source="$(var.release)\Revit_2015\nodes\DynamoRaaS.dll" />
+            </Component>
+        </ComponentGroup>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dirFD61DF07BFFF2529B10307810AAB5503">
+            <Directory Id="dir416CF26834D120375CD850086E850D6B" Name="en-US" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dirFD61DF07BFFF2529B10307810AAB5503">
+            <Directory Id="dirDB532A3EEA275C4AFE8E3E65F4DC091A" Name="nodes" />
+        </DirectoryRef>
+    </Fragment>
+</Wix>
