@@ -41,7 +41,7 @@
   </ItemGroup>
   <Import Project="$(WixTargetsPath)" />
   <Target Name="BeforeBuild"> 
-    <GetAssemblyIdentity AssemblyFiles="$(DYNAMOAPI)\DynamoCore.dll">
+    <GetAssemblyIdentity AssemblyFiles="$(DYNAMO_REVIT_BASE_PATH)\bin\AnyCPU\Install\$(REVIT_VERSION)\DynamoRevitDS.dll">
       <Output TaskParameter="Assemblies" ItemName="AssemblyVersions" />
     </GetAssemblyIdentity>
     <CreateProperty Value="%(AssemblyVersions.Version)">

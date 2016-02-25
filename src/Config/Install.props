@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <!--ImportGroup Label="PropertySheets" Condition=" Exists('$(SolutionDir)Config/user_local.props') ">
+  <ImportGroup Label="PropertySheets" Condition=" Exists('$(SolutionDir)Config/user_local.props') ">
     <Import Project="$(SolutionDir)Config/user_local.props" />
-  </ImportGroup-->
+  </ImportGroup>
   <PropertyGroup>
-    <RevitVersionNumber Condition=" '$(RevitVersionNumber)' == '' ">2015</RevitVersionNumber>
-	<REVIT_VERSION>Revit_$(RevitVersionNumber)</REVIT_VERSION>
-	<DYNAMOTESTAPI Condition=" '$(DYNAMOTESTAPI)' == '' ">$(SolutionDir)..\..\Dynamo\bin\AnyCPU\$(Configuration)</DYNAMOTESTAPI>
-    <DYNAMOAPI  Condition=" '$(DYNAMOAPI)' == '' ">$(SolutionDir)..\..\Dynamo\bin\AnyCPU\$(Configuration)</DYNAMOAPI>
 	<OutputPath Condition=" '$(OutputPath)' == '' ">$(SolutionDir)..\bin\$(Platform)\$(Configuration)\$(REVIT_VERSION)</OutputPath>
 	<TestOutputPath Condition=" '$(TestOutputPath)' == '' ">$(OutputPath)</TestOutputPath>
   </PropertyGroup>
