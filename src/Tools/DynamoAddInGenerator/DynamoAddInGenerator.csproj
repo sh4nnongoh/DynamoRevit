@@ -47,10 +47,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="DynamoInstallDetective">
-      <HintPath>..\..\..\tools\install\Extra\DynamoInstallDetective.dll</HintPath>
+      <HintPath>$(DYNAMOAPI)\DynamoInstallDetective.dll</HintPath>
     </Reference>
     <Reference Include="RevitAddinUtility">
-      <HintPath>..\..\..\tools\install\Extra\RevitAddinUtility.dll</HintPath>
+      <HintPath>$(REVITAPI)\RevitAddinUtility.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

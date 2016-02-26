@@ -2,35 +2,39 @@
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
     <Fragment>
         <DirectoryRef Id="PROGDATA">
-            <Directory Id="dirE467BB294ABBBB5792649FEFF3050F21" Name="Revit" />
+            <Directory Id="dirB82F134F01CDF559844BCB3CBC3092DF" Name="Samples" />
         </DirectoryRef>
     </Fragment>
     <Fragment>
         <ComponentGroup Id="SAMPLES">
-            <Component Id="cmp9DC2CBF9F9AD7D72B6B97CA5D1C94B05" Directory="dirE467BB294ABBBB5792649FEFF3050F21" Guid="{4AD7ED59-BF15-4A21-AD0B-B52CE78C1E30}">
-                <File Id="filBBA89F1A550BE2F5AA409636D21192F4" KeyPath="yes" Source="$(var.samples)\DynamoSample_2014.rvt" />
+            <Component Id="cmp2F9F12CC0392970235A30D86C5523B54" Directory="dirE26FDCD75F308D0BD2B68C52B151EA97" Guid="{4AB2B2B0-3F9A-4276-9A9A-95B47BBBCF37}">
+                <File Id="filCF13EFE38C0C9E728C0DCB5F8B1DB5C8" KeyPath="yes" Source="$(var.samples)\en-US\Revit\Revit_Adaptive Component Placement.dyn" />
             </Component>
-            <Component Id="cmp2338B3D4D00D3487C9423867B38610DE" Directory="dirE467BB294ABBBB5792649FEFF3050F21" Guid="{4AD85D8B-3228-49C5-A1EA-D3ABB2875CAD}">
-                <File Id="filB0B11324F781D424CDF869952A191C26" KeyPath="yes" Source="$(var.samples)\DynamoSample_2015.rvt" />
+            <Component Id="cmp184BB340D0FA5630051207B7BFD6A7F6" Directory="dirE26FDCD75F308D0BD2B68C52B151EA97" Guid="{51483D73-1F82-4589-8D8E-E8C474DB79E0}">
+                <File Id="filD506F174F3CE4CBB3924D0F16E85AD46" KeyPath="yes" Source="$(var.samples)\en-US\Revit\Revit_Color.dyn" />
             </Component>
-            <Component Id="cmpFA97190979438AA22CD539B5D4455F00" Directory="dirE467BB294ABBBB5792649FEFF3050F21" Guid="{744654EC-5AD3-48E8-AA99-0D73EA83AF3D}">
-                <File Id="fil89C6AC0940431CCE51B07B004D30BE3F" KeyPath="yes" Source="$(var.samples)\Revit_Adaptive Component Placement.dyn" />
+            <Component Id="cmp46D7C38D23100AA4B7D16F3AD5227614" Directory="dirE26FDCD75F308D0BD2B68C52B151EA97" Guid="{145D261F-81D3-499D-AB85-63C5351F947C}">
+                <File Id="filB912E7DEBC48067DD48C4F971DCAF193" KeyPath="yes" Source="$(var.samples)\en-US\Revit\Revit_Floors and Framing.dyn" />
             </Component>
-            <Component Id="cmp3C56D2678E1231968061B611A797A155" Directory="dirE467BB294ABBBB5792649FEFF3050F21" Guid="{A516B95D-8B10-4B83-AC36-0FD96FA333A1}">
-                <File Id="fil78670D761EB6711B9A6D4EFF364C6DF8" KeyPath="yes" Source="$(var.samples)\Revit_Color.dyn" />
+            <Component Id="cmpC22E0065EADCC56F7D305F9FEB2A9D22" Directory="dirE26FDCD75F308D0BD2B68C52B151EA97" Guid="{CB0CAA29-38AB-4E23-8709-C3BF42A9A540}">
+                <File Id="fil2E154EE7513AA9CB55871CE54E1B3068" KeyPath="yes" Source="$(var.samples)\en-US\Revit\Revit_ImportSolid.dyn" />
             </Component>
-            <Component Id="cmpCF1DD5968DD4F419994E587CDF4C6D09" Directory="dirE467BB294ABBBB5792649FEFF3050F21" Guid="{5701621A-6171-482F-B569-FEB8916254FC}">
-                <File Id="fil1F30701DA44C450EB9D57F45F446158E" KeyPath="yes" Source="$(var.samples)\Revit_Floors and Framing.dyn" />
+            <Component Id="cmp37932F0DF8FADDDE28F97263D19C214A" Directory="dirE26FDCD75F308D0BD2B68C52B151EA97" Guid="{2C996216-0405-4100-94F5-B83A393D87D9}">
+                <File Id="fil96CA325EEA01CE584404532019B98AC5" KeyPath="yes" Source="$(var.samples)\en-US\Revit\Revit_PlaceFamiliesByLevel_Set Parameters.dyn" />
             </Component>
-            <Component Id="cmpDD82C582F5F7AF717E463549B564AF16" Directory="dirE467BB294ABBBB5792649FEFF3050F21" Guid="{D70DDA07-9206-4FF8-A00C-F33BADB31100}">
-                <File Id="filBC84DF40AEF04F34EB045E8F6B7E1AD2" KeyPath="yes" Source="$(var.samples)\Revit_ImportSolid.dyn" />
-            </Component>
-            <Component Id="cmpA24C0C96E1A2B9A44E09F1BB13BD13A9" Directory="dirE467BB294ABBBB5792649FEFF3050F21" Guid="{B1071671-C0FF-4773-A987-CC2CF636F88C}">
-                <File Id="filCEFA509B98AA9B385C779E71456EB86C" KeyPath="yes" Source="$(var.samples)\Revit_PlaceFamiliesByLevel_Set Parameters.dyn" />
-            </Component>
-            <Component Id="cmp8C6AF2F07E1DC4FF8A838A35A0090AF0" Directory="dirE467BB294ABBBB5792649FEFF3050F21" Guid="{6B84FF07-F663-48A4-89B6-394E344DBA45}">
-                <File Id="fil85810D3DA8B737CF5B9B65F1F8F968CE" KeyPath="yes" Source="$(var.samples)\Revit_StructuralFraming.dyn" />
+            <Component Id="cmp519089DCF448469B52B46976C382D7E1" Directory="dirE26FDCD75F308D0BD2B68C52B151EA97" Guid="{16265763-6429-4BF3-B966-4AD2DDFB1389}">
+                <File Id="fil91ADAD93034DCC26BD888F49897E3488" KeyPath="yes" Source="$(var.samples)\en-US\Revit\Revit_StructuralFraming.dyn" />
             </Component>
         </ComponentGroup>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dirF1A60FC9FD8AF225CBF83117131D4E67">
+            <Directory Id="dirE26FDCD75F308D0BD2B68C52B151EA97" Name="Revit" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dirB82F134F01CDF559844BCB3CBC3092DF">
+            <Directory Id="dirF1A60FC9FD8AF225CBF83117131D4E67" Name="en-US" />
+        </DirectoryRef>
     </Fragment>
 </Wix>
