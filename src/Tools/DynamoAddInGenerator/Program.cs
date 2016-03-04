@@ -33,6 +33,12 @@ namespace DynamoAddinGenerator
 
             var allProducts = RevitProductUtility.GetAllInstalledRevitProducts();
             var prodCollection = new RevitProductCollection(allProducts.Select(x => new DynamoRevitProduct(x)));
+            foreach(var prod in prodCollection.Products)
+            {
+                Console.WriteLine(prod.ProductName);
+                Console.WriteLine(prod.VersionString);
+                Console.WriteLine(prod.InstallLocation);
+            }
             if (!prodCollection.Products.Any())
             {
                 Console.WriteLine("There were no Revit products found.");
