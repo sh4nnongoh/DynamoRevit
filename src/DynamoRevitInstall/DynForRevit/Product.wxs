@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+
+  <Product Id="*"
+           Name="$(var.ProductName) $(var.Major).$(var.Minor).$(var.Rev)"
+           Language="1033"
+           Version="$(var.FullVersion)"
+           Manufacturer="Dynamo"
+           UpgradeCode="{584B3E06-FE7A-4341-8C22-339B00ABD58A}">
+
+    <Package Comments="$(var.ProductName) $(var.FullVersion)"
+             Description="Install package for $(var.ProductName)"
+             InstallerVersion="200"
+             Compressed="yes"
+             Languages="1033"
+             Manufacturer="Dynamo"
+             Platform="x64"/>
+
+    <MajorUpgrade AllowSameVersionUpgrades="yes"
+                  Schedule="afterInstallFinalize"
+                  DowngradeErrorMessage="A newer version of $(var.ProductName) is already installed." />
+
+    <MediaTemplate EmbedCab="yes" />
+
+    <!-- 
+       Launch conditions
+ 
+       1. Check if a specific DynamoCore.msi version is installed.<![CDATA[DYNAMOLOCATION AND NOT REMOVE ~= "ALL"]]>
+    -->
+    <Condition Message="DynamoCore.msi version [ProductVersion] is not installed on this system.">
+      <![CDATA[DYNAMOLOCATION]]>
+    </Condition>
+    <!--================-->
+    <!--Condition Message="You cannot install $(var.ProductName) by running this MSI.  Please run Setup.exe.">Installed or ADSK_SETUP_EXE</Condition-->
+
+    <CustomAction Id="GenerateRevitAddin.SetProperty" Property="GenerateRevitAddin"
+                  Value="&quot;[DYNAMO_REVIT_INSTALLDIR]DynamoAddinGenerator.exe&quot; &quot;[DYNAMO_REVIT_INSTALLDIR]&quot;" />
+    <CustomAction Id="GenerateRevitAddin" Return="ignore" BinaryKey="WixCA" DllEntry="CAQuietExec" Execute="deferred" Impersonate="no" />
+
+    <CustomAction Id="RemoveRevitAddin.SetProperty" Property="RemoveRevitAddin"
+                  Value="&quot;[DYNAMO_REVIT_INSTALLDIR]DynamoAddinGenerator.exe&quot; /uninstall &quot;[DYNAMO_REVIT_INSTALLDIR]&quot;" />
+    <CustomAction Id="RemoveRevitAddin" Return="ignore" BinaryKey="WixCA" DllEntry="CAQuietExec" Execute="deferred" Impersonate="no" />
+
+    <CustomTable Id="AdskCustomFile">
+        <Column Id="Component_" PrimaryKey="yes" Type="string" Width="72" KeyTable="Component" KeyColumn="1" Category="Identifier" Description="Required foreign key into the Component Table." Modularize="Column" />
+        <Column Id="SourceFileName" Type="string" Width="0" Category="Text" Description="File name." />
+        <Column Id="Flags" Type="int" Width="2" MinValue="0" Description="Flags" />
+    </CustomTable>
+    <EnsureTable Id="AdskCustomFile" />
+
+    <CustomTable Id="AdskExecuteSequence">
+        <Column Id="Action" PrimaryKey="yes" Type="string" Width="72" Category="Identifier" Description="Name of action to invoke, either in the engine or the handler DLL." Modularize="Column" />
+        <Column Id="Condition" Type="string" Width="255" Nullable="yes" Category="Condition" Description="Optional expression which skips the action if evaluates to expFalse.If the expression syntax is invalid, the engine will terminate, returning iesBadActionData." Modularize="Condition" />
+        <Column Id="Sequence" Type="int" Width="2" Nullable="yes" MinValue="-4" MaxValue="32767" Description="Number that determines the sort order in which the actions are to be executed.  Leave blank to suppress action." />
+        <Row>
+            <Data Column="Action">AppSearch</Data>
+            <Data Column="Condition" />
+            <Data Column="Sequence">40</Data>
+        </Row>
+        <Row>
+            <Data Column="Action">CostInitialize</Data>
+            <Data Column="Condition" />
+            <Data Column="Sequence">800</Data>
+        </Row>
+        <Row>
+            <Data Column="Action">FileCost</Data>
+            <Data Column="Condition" />
+            <Data Column="Sequence">900</Data>
+        </Row>
+        <Row>
+            <Data Column="Action">CostFinalize</Data>
+            <Data Column="Condition" />
+            <Data Column="Sequence">1000</Data>
+        </Row>
+        <Row>
+            <Data Column="Action">InstallValidate</Data>
+            <Data Column="Condition" />
+            <Data Column="Sequence">1400</Data>
+        </Row>
+    </CustomTable>
+
+    <Icon Id="DynamoInstaller.ico" SourceFile="$(var.base)\tools\install\Extra\DynamoInstaller.ico"/>
+
+    <Property Id="DYNAMOLOCATION">
+      <RegistrySearch Id='DynamoRegistry' Type='raw' Win64='yes'
+        Root='HKLM' Key='SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Dynamo $(var.Major).$(var.Minor)' Name='InstallLocation' />
+    </Property>
+    
+    <Property Id="ALLUSERS" Value="1" />
+    <Property Id="ARPCONTACT" Value="Autodesk, Inc." />
+    <Property Id="ProductNameGlob" Value="$(var.ProductName) $(var.Major).$(var.Minor).$(var.Rev)" />
+    <Property Id="ShortProductName" Value="DYN" />
+    <Property Id="ARPPRODUCTICON" Value="DynamoInstaller.ico" />
+
+    <Property Id="SAMPLEFOLDER">
+      <RegistrySearch Root="HKLM" Key="SOFTWARE\[Manufacturer]\$(var.ProductName)\[Manufacturer] [ProductName]" Type="raw" Id="SAMPLES_REGSEARCH" Name="SamplesPath" Win64="yes" />
+    </Property>
+
+    <Property Id="INSTALLDIR"/>
+    <CustomAction Id="DIRCA_DEFAULT_INSTALLDIR" Property="DYNAMO_REVIT_INSTALLDIR" Value="[ProgramFiles64Folder][Manufacturer]\$(var.ProductName) $(var.Major).$(var.Minor)" Execute="immediate" />
+    <CustomAction Id="DIRCA_SET_INSTALLDIR" Property="DYNAMO_REVIT_INSTALLDIR" Value="[INSTALLDIR]\$(var.ProductName) $(var.Major).$(var.Minor)" Execute="immediate" />
+
+    <InstallExecuteSequence>
+      <Custom Action="DIRCA_DEFAULT_INSTALLDIR" Before="CostInitialize">INSTALLDIR=""</Custom>
+      <Custom Action="DIRCA_SET_INSTALLDIR" Before="CostInitialize"><![CDATA[INSTALLDIR<>""]]></Custom>
+      <Custom Action="GenerateRevitAddin.SetProperty" Before="GenerateRevitAddin">NOT Installed</Custom>
+      <Custom Action="GenerateRevitAddin" Before="InstallFinalize">NOT Installed</Custom>
+      <Custom Action="RemoveRevitAddin.SetProperty" Before="RemoveRevitAddin">Installed</Custom>
+      <Custom Action="RemoveRevitAddin" After="InstallInitialize">Installed</Custom>
+    </InstallExecuteSequence>
+
+
+    <Feature Id="DYNAMO_REVIT_FEATURE"
+             Title="Dynamo Revit"
+             Level="1">
+      <ComponentGroupRef Id="RELEASE"/>
+      <ComponentGroupRef Id="DEFINITIONS"/>
+      <ComponentGroupRef Id="GALLERY"/>
+      <ComponentRef Id="ProductRegistry" />
+      <Feature Id="DYNAMO_REVIT_SAMPLES"
+               Title="Sample Content"
+               Level="1" >
+          <ComponentGroupRef Id="SAMPLES"/>
+      </Feature>
+      <!--MergeRef Id="Setup"/> 
+	    <MergeRef Id="SetupUninstall"/--> 
+    </Feature>
+  </Product>
+
+  <Fragment>
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="AutodeskStartMenuFolder">
+          <Directory Id="ApplicationProgramsFolder" Name="Dynamo"/>
+      </Directory>
+      <Directory Id="DYNAMO_REVIT_INSTALLDIR"/>
+      <!--Merge Id="Setup" Language="1033" SourceFile="$(var.modules)\Setup.msm" DiskId="1">
+			  <ConfigurationData Name="_9F0C03F7CF754E429FF686DE8D9B85AC.EA84BDA4715A43B6B1DEDE5ED0070F0E" Value="[DYNAMO_REVIT_INSTALLDIR]" />
+      </Merge>
+	    <Merge Id="SetupUninstall" Language="1033" SourceFile="$(var.modules)\SetupUninstall.msm" DiskId="1">
+		    <ConfigurationData Name="UninstallKeysGUIDConfig" Value="{03D59716-3909-4AC8-850F-16CF66E6BE8B}" />
+	    </Merge-->
+
+      <Directory Id="CommonAppDataFolder">
+        <Directory Id="DYNAMO_PROGDATA" Name="Dynamo">
+          <Directory Id="PROGDATA" Name="$(var.Major).$(var.Minor)"/>
+        </Directory>
+      </Directory>
+      <Directory Id="AppDataFolder">
+        <Directory Id="DYNAMO_APPDATA" Name="Dynamo">
+          <Directory Id="APPDATA" Name="$(var.Major).$(var.Minor)">
+            <Directory Id="definitions" Name="definitions" />
+            <Directory Id="logs" Name="Logs" />
+            <Directory Id="packages" Name="packages" />
+          </Directory>
+        </Directory>
+      </Directory>
+    </Directory>
+
+    <DirectoryRef Id="TARGETDIR">
+      <Component Id="ProductRegistry" Win64="yes">
+        <RegistryKey Root="HKLM"
+                      Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$(var.ProductName) $(var.Major).$(var.Minor)"
+                      ForceDeleteOnUninstall="yes">
+          <RegistryValue Name="InstallLocation" Value="[DYNAMO_REVIT_INSTALLDIR]" Type="string" />
+          <RegistryValue Name="UninstallString" Value="MsiExec.exe" Type="string" />
+          <RegistryValue Name="UninstallParam" Value="/X[ProductCode] /quiet" Type="string" />
+          <RegistryValue Name="Version" Value="$(var.FullVersion)" Type="string" />
+          <RegistryValue Name="RevVersion" Value="$(var.Rev)" Type="integer" />
+        </RegistryKey>
+
+        <CreateFolder Directory="definitions" />
+        <CreateFolder Directory="logs" />
+        <CreateFolder Directory="packages" />
+
+        <RemoveFolder Id="RemoveDefinitionsDir" Directory="definitions" On="uninstall" />
+        <RemoveFolder Id="RemoveLogsDir" Directory="logs" On="uninstall" />
+        <RemoveFolder Id="RemovePackagesDir" Directory="packages" On="uninstall" />
+        <RemoveFolder Id="RemoveAppDataDir" Directory="APPDATA" On="uninstall" />
+        <RemoveFolder Id="RemoveDynamoAppDataDir" Directory="DYNAMO_APPDATA" On="uninstall" />
+      </Component>
+    </DirectoryRef>
+
+  </Fragment>
+  
+</Wix>
