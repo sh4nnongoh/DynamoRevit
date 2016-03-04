@@ -9,7 +9,7 @@
            Manufacturer="Dynamo"
            UpgradeCode="2baac14c-bcc4-423b-baec-7b3acecd6d13">
 
-    <Package InstallerVersion="200"
+    <Package InstallerVersion="400"
              Compressed="yes"
              InstallScope="perMachine"
              Platform="x64"/>
@@ -18,34 +18,21 @@
       Schedule="afterInstallInitialize"
       DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
 
-    <MediaTemplate EmbedCab="yes" />
+    <!-- License agreement text: dummy. Real text is set in WXS file -->
+    <WixVariable Id="WixUILicenseRtf" Value="dummy" />
 
-    <!--================-->
-    <CustomAction Id="GenerateRevitAddin.SetProperty" Property="GenerateRevitAddin"
-                  Value="&quot;[DYNAMOREVIT_INSTALLDIR]\DynamoAddinGenerator.exe&quot; &quot;[ProgramFiles64Folder]\Dynamo $(var.Major).$(var.Minor)&quot;" />
-    <CustomAction Id="GenerateRevitAddin" Return="ignore" BinaryKey="WixCA" DllEntry="CAQuietExec" Execute="deferred" Impersonate="no" />
+    <!-- UI customization -->
+    <WixVariable Id="WixUIBannerBmp" Value="images\BannerTop.bmp" />
+    <WixVariable Id="WixUIDialogBmp" Value="images\Dialog.bmp" />
 
-    <CustomAction Id="RemoveRevitAddin.SetProperty" Property="RemoveRevitAddin"
-                  Value="&quot;[DYNAMOREVIT_INSTALLDIR]\DynamoAddinGenerator.exe&quot; /uninstall &quot;[ProgramFiles64Folder]\Dynamo $(var.Major).$(var.Minor)&quot;" />
-    <CustomAction Id="RemoveRevitAddin" Return="ignore" BinaryKey="WixCA" DllEntry="CAQuietExec" Execute="deferred" Impersonate="no" />
+    <!-- Define icons (ID should not be longer than 18 chars and must end with ".exe") -->
+    <Icon Id="Icon.exe" SourceFile="images\app.ico" />
 
-    <InstallExecuteSequence>
-      <Custom Action="RemoveRevitAddin.SetProperty" Before="InstallFinalize">Installed</Custom>
-      <Custom Action="RemoveRevitAddin" After="RemoveRevitAddin.SetProperty">Installed</Custom>
-      <Custom Action="GenerateRevitAddin.SetProperty" After="RemoveRevitAddin">NOT Installed</Custom>
-      <Custom Action="GenerateRevitAddin" After="GenerateRevitAddin.SetProperty">NOT Installed</Custom>
-    </InstallExecuteSequence>
-    <!--================-->
-    
-    <!--<UIRef Id="WixUI_FeatureTree"/>
-    <WixVariable Id="WixUILicenseRtf" Value="$(env.DYNAMO_BASE)\doc\distrib\License.rtf"/>-->
-    
-    <Condition Message="DynamoCore.msi version [ProductVersion] is not installed on this system.">
-      <![CDATA[DYNAMOLOCATION]]>
-    </Condition>
-
-    <!--================-->
-    <Property Id='ARPNOMODIFY'>1</Property>
+    <!-- Set properties for add/remove programs -->
+    <Property Id="ARPPRODUCTICON" Value="Icon.exe" />
+    <Property Id="ARPHELPLINK" Value="$(var.InfoURL)" />
+    <Property Id="ARPNOREPAIR" Value="yes" Secure="yes" /><!-- Remove repair -->
+    <Property Id="ARPNOMODIFY" Value="yes" Secure="yes" /><!-- Remove modify -->
 
     <Property Id="DYNAMOLOCATION">
       <RegistrySearch Id='DynamoRegistry' Type='raw' Win64='yes'
@@ -57,20 +44,6 @@
     <Property Id="INSTALL_FOR_REVIT_2015">1</Property>
 
     <!--Find Revit installations by finding the uninstall registry key.-->
-    <Property Id="VASARI">
-      <RegistrySearch Id='VasariRegistry_2014' Type='raw' Win64='yes'
-        Root='HKLM' Key='SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Autodesk Vasari Beta 3' Name='InstallLocation' />
-    </Property>
-
-    <Property Id="REVIT_2014">
-      <RegistrySearch Id='RevitRegistry_2014' Type='raw' Win64='yes'
-        Root='HKLM' Key='SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Autodesk Revit 2014' Name='InstallLocation' />
-    </Property>
-
-    <Property Id="REVIT_ARCHITECTURE_2014">
-      <RegistrySearch Id='RevitRegistry_Architecture_2014' Type='raw' Win64='yes'
-        Root='HKLM' Key='SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Autodesk Revit Architecture 2014' Name='InstallLocation' />
-    </Property>
 
     <Property Id="REVIT_2015">
       <RegistrySearch Id='RevitRegistry_2015' Type='raw' Win64='yes'
@@ -87,6 +60,44 @@
 
     <Icon Id="DynamoInstaller.ico" SourceFile="$(var.base)\tools\install\Extra\DynamoInstaller.ico"/>
     <Property Id="ARPPRODUCTICON" Value="DynamoInstaller.ico" />
+
+    <!-- We do not have more than one medium (Floppy, CD, ...). Everything in one file. -->
+    <Media Id="1" Cabinet="media1.cab" EmbedCab="yes" />
+
+    <!-- This is the main installer sequence run when the product is actually installed -->
+    <InstallExecuteSequence>
+      <!-- Determine the install location after the install path has been validated by the installer -->
+      <Custom Action="SetARPINSTALLLOCATION" After="InstallValidate"></Custom>
+    </InstallExecuteSequence>
+
+    <!-- Set up ARPINSTALLLOCATION property (http://blogs.technet.com/b/alexshev/archive/2008/02/09/from-msi-to-wix-part-2.aspx) -->
+    <CustomAction Id="SetARPINSTALLLOCATION" Property="ARPINSTALLLOCATION" Value="[INSTALLDIR]" />
+
+    <!--================-->
+    <CustomAction Id="GenerateRevitAddin.SetProperty" Property="GenerateRevitAddin"
+                  Value="&quot;[DYNAMOREVIT_INSTALLDIR]\DynamoAddinGenerator.exe&quot; &quot;[ProgramFiles64Folder]\Dynamo $(var.Major).$(var.Minor)&quot;" />
+    <CustomAction Id="GenerateRevitAddin" Return="ignore" BinaryKey="WixCA" DllEntry="CAQuietExec" Execute="deferred" Impersonate="no" />
+
+    <CustomAction Id="RemoveRevitAddin.SetProperty" Property="RemoveRevitAddin"
+                  Value="&quot;[DYNAMOREVIT_INSTALLDIR]\DynamoAddinGenerator.exe&quot; /uninstall &quot;[ProgramFiles64Folder]\Dynamo $(var.Major).$(var.Minor)&quot;" />
+    <CustomAction Id="RemoveRevitAddin" Return="ignore" BinaryKey="WixCA" DllEntry="CAQuietExec" Execute="deferred" Impersonate="no" />
+
+    <InstallExecuteSequence>
+      <Custom Action="RemoveRevitAddin.SetProperty" Before="InstallFinalize">Installed</Custom>
+      <Custom Action="RemoveRevitAddin" After="RemoveRevitAddin.SetProperty">Installed</Custom>
+      <Custom Action="GenerateRevitAddin.SetProperty" After="RemoveRevitAddin">NOT Installed</Custom>
+      <Custom Action="GenerateRevitAddin" After="GenerateRevitAddin.SetProperty">NOT Installed</Custom>
+    </InstallExecuteSequence>
+    <!-- 
+       Launch conditions
+ 
+       1. Check if a specific DynamoCore.msi version is installed.
+    -->
+    <Condition Message="DynamoCore.msi version [ProductVersion] is not installed on this system.">
+      <![CDATA[DYNAMOLOCATION]]>
+    </Condition>
+    <!--================-->
+
     <!--================-->
     <Feature Id="DYNAMO_REVIT_FEATURE"
              Title="Dynamo for Revit"
@@ -98,13 +109,6 @@
              Level="1" >
         <ComponentGroupRef Id="SAMPLES"/>
       </Feature>
-    </Feature>
-
-    <Feature Id="DYNAMO_REVIT_2014"
-             Title="Dynamo for Revit 2014"
-             Level="1">
-      <ComponentGroupRef Id="REVIT_2014"/>
-      <Condition Level="0">(REVIT_2014="" AND REVIT_ARCHITECTURE_2014="" AND VASARI="") OR INSTALL_FOR_REVIT_2014=0</Condition>
     </Feature>
 
     <Feature Id="DYNAMO_REVIT_2015"
@@ -125,8 +129,6 @@
         <Directory Id="ADESK_DATA" Name="Autodesk">
           <Directory Id="REVIT_DATA" Name="Revit">
             <Directory Id="ADDIN_DATA" Name="Addins">
-              <Directory Id="ADDINS_2014" Name="2014">
-              </Directory>
               <Directory Id="ADDINS_2015" Name="2015">
               </Directory>
             </Directory>
@@ -152,11 +154,6 @@
       </Component>
     </DirectoryRef>
 
-    <ComponentGroup Id="REVIT_2014" Directory="ADDINS_2014">
-      <Component Id="DynamoForRevit2014.addin" Guid="976a5fd6-0a53-4530-b9c8-1004fc7a6200">
-        <File Id="DynamoForRevit2014.addin" Name="Dynamo.addin" Source="$(var.base)\tools\install\Extra\DynamoForRevit2014.addin"/>
-      </Component>
-    </ComponentGroup>
     <ComponentGroup Id="REVIT_2015" Directory="ADDINS_2015">
       <Component Id="DynamoForRevit2015.addin" Guid="fde9dc0b-4b8c-46d3-9950-42c9f66b5e60">
         <File Id="DynamoForRevit2015.addin" Name="Dynamo.addin" Source="$(var.base)\tools\install\Extra\DynamoForRevit2015.addin"></File>
