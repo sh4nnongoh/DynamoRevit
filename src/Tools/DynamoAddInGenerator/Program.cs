@@ -33,17 +33,32 @@ namespace DynamoAddinGenerator
 
             var allProducts = RevitProductUtility.GetAllInstalledRevitProducts();
             var prodCollection = new RevitProductCollection(allProducts.Select(x => new DynamoRevitProduct(x)));
-            foreach(var prod in prodCollection.Products)
-            {
-                Console.WriteLine(prod.ProductName);
-                Console.WriteLine(prod.VersionString);
-                Console.WriteLine(prod.InstallLocation);
-            }
+
             if (!prodCollection.Products.Any())
             {
                 Console.WriteLine("There were no Revit products found.");
                 return;
             }
+
+            Console.WriteLine();
+            foreach (var prod in prodCollection.Products)
+            {
+                if (prod.VersionString == "Unknown")
+                {
+                    prod.VersionString = "Revit" + prod.ProductName.Substring(prod.ProductName.Length - 4);
+                    prod.AddinsFolder = 
+                        prod.AddinsFolder.Substring(0, prod.AddinsFolder.Length - 7) 
+                        + prod.ProductName.Substring(prod.ProductName.Length - 4);
+                }
+                Console.WriteLine(prod.ProductName);
+                Console.WriteLine(prod.VersionString);
+                Console.WriteLine(prod.InstallLocation);
+                Console.WriteLine(prod.AddinsFolder);
+                Console.WriteLine();
+
+
+            }
+            Console.WriteLine();
 
             var dynamos = DynamoProducts.FindDynamoInstallations(debugPath);
             if (!dynamos.Products.Any())
