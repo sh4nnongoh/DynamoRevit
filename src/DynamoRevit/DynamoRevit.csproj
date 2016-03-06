@@ -53,17 +53,12 @@
       <HintPath>$(DYNAMOAPI)\DynamoServices.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Greg, Version=1.0.5892.25330, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Greg.1.0.5892.25330\lib\net45\Greg.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="Greg">
+      <HintPath>..\..\..\Dynamo\extern\greg\Greg.dll</HintPath>
     </Reference>
-    <Reference Include="GregRevitAuth, Version=1.0.5907.17451, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\GregRevitAuth.1.0.5907.17451\lib\net45\GregRevitAuth.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Ionic.Zip, Version=1.9.1.8, Culture=neutral, PublicKeyToken=edbe51ad942a3f5c, processorArchitecture=MSIL">
-      <HintPath>..\packages\Unofficial.Ionic.Zip.1.9.1.8\lib\Ionic.Zip.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="GregRevitAuth, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(DynamoExternPath)\greg\GregRevitAuth.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.Dynamic, Version=1.1.0.20, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL" />
@@ -74,10 +69,6 @@
     <Reference Include="Microsoft.Scripting, Version=1.1.0.20, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>$(DYNAMOAPI)\Microsoft.Scripting.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.8.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
-      <Private>False</Private>
     </Reference>
     <Reference Include="PresentationCore">
       <RequiredTargetFramework>3.0</RequiredTargetFramework>
@@ -92,10 +83,6 @@
     </Reference>
     <Reference Include="ProtoInterface">
       <HintPath>$(DYNAMOAPI)\ProtoInterface.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="RestSharp, Version=105.2.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\RestSharp.105.2.3\lib\net45\RestSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="RevitAPI">
@@ -138,8 +125,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.en-US.resx</DependentUpon>
     </Compile>
-    <Compile Include="RevitPathResolver.cs" />
     <Compile Include="ViewModel\DynamoRevitViewModel.cs" />
+    <Compile Include="RevitPathResolver.cs" />
     <Compile Include="ViewModel\RevitWatchHandler.cs" />
     <Compile Include="ViewModel\RevitWatch3DViewModel.cs" />
     <Compile Include="Migration\WorkspaceMigrationsRevit.cs" />
@@ -178,7 +165,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Ionic.Zip.xml" />
     <Content Include="Resources\logo_square_32x32.png" />
     <Content Include="Resources\logo_square_64x64.png" />
   </ItemGroup>
@@ -192,26 +178,23 @@
       <Name>RevitServices</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>xcopy /Y "$(DynamoExternPath)\DynamoRaaS\RevitRaaS.dll.config" "$(OutputPath)"
-xcopy /Y "$(DynamoExternPath)\DynamoRaaS\DynamoRaaS.dll" "$(OutputPath)nodes\"
-xcopy /Y "$(DynamoExternPath)\DynamoRaaS\SimpleRaaS.dll" "$(OutputPath)"
-xcopy /Y "$(DynamoExternPath)\DynamoRaaS\JobMonitor.dll" "$(OutputPath)"
-xcopy /Y "$(DynamoExternPath)\DynamoRaaS\RevitRaaS.dll" "$(OutputPath)"
-xcopy /Y "$(DynamoExternPath)\DynamoRaaS\SDF.dll" "$(OutputPath)"
-xcopy /Y "$(DynamoExternPath)\DynamoRaaS\*_DynamoCustomization.xml" "$(OutputPath)"
-xcopy /Y "$(DynamoExternPath)\DynamoRaaS\SimpleRaas.xml" "$(OutputPath)en-US\"
-xcopy /Y "$(DynamoExternPath)\DynamoRaaS\en-US\*resources.dll" "$(OutputPath)en-US\"</PostBuildEvent>
+ xcopy /Y "$(DynamoExternPath)\DynamoRaaS\DynamoRaaS.dll" "$(OutputPath)nodes\"
+ xcopy /Y "$(DynamoExternPath)\DynamoRaaS\SimpleRaaS.dll" "$(OutputPath)"
+ xcopy /Y "$(DynamoExternPath)\DynamoRaaS\JobMonitor.dll" "$(OutputPath)"
+ xcopy /Y "$(DynamoExternPath)\DynamoRaaS\RevitRaaS.dll" "$(OutputPath)"
+ xcopy /Y "$(DynamoExternPath)\DynamoRaaS\SDF.dll" "$(OutputPath)"
+ xcopy /Y "$(DynamoExternPath)\DynamoRaaS\*_DynamoCustomization.xml" "$(OutputPath)"
+ xcopy /Y "$(DynamoExternPath)\DynamoRaaS\SimpleRaas.xml" "$(OutputPath)en-US\"
+ xcopy /Y "$(DynamoExternPath)\DynamoRaaS\en-US\*resources.dll" "$(OutputPath)en-US\"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+        Other similar extension points exist, see Microsoft.Common.targets.
+   <Target Name="BeforeBuild">
+   </Target>
+   <Target Name="AfterBuild">
+   </Target>
+   -->
 </Project>
