@@ -4,14 +4,16 @@
   <ImportGroup Label="PropertySheets">
     <Import Project="$(SolutionDir)/Config/Install.props" />
   </ImportGroup>
-  
+  <PropertyGroup>
+	<SuppressValidation>true</SuppressValidation>
+  </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>3.8</ProductVersion>
     <ProjectGuid>{c7495640-0d0c-46ab-a5f3-d5be78f89a0d}</ProjectGuid>
     <SchemaVersion>2.0</SchemaVersion>
-    <OutputName>DynamoRevitInstall</OutputName>
+    <OutputName>DynamoRevit</OutputName>
     <OutputType>Package</OutputType>
     <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' AND '$(MSBuildExtensionsPath32)' != '' ">$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
     <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' ">$(MSBuildExtensionsPath)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
@@ -97,8 +99,8 @@
 		-out		: Specify output filename
 		-t <xsl>	: Transform harvested output with XSL file
 	  -->
-	  "C:\Program Files (x86)\WiX Toolset v3.8\bin\heat.exe" dir $(DYNAMO_REVIT_RELEASE_PATH) -cg RELEASE -gg -scom -sreg -srd -dr DYNAMOREVIT_INSTALLDIR -var var.release -out "$(ProjectDir)Release.wxs"
-      "C:\Program Files (x86)\WiX Toolset v3.8\bin\heat.exe" dir $(DYNAMO_REVIT_SAMPLES_PATH) -cg SAMPLES -gg -scom -sreg -dr PROGDATA -var var.samples -t "$(ProjectDir)Samples.xsl" -out "$(ProjectDir)Samples.wxs"
+	  "C:\Program Files (x86)\WiX Toolset v3.10\bin\heat.exe" dir $(DYNAMO_REVIT_RELEASE_PATH) -cg RELEASE -gg -scom -sreg -srd -dr DYNAMO_REVIT_INSTALLDIR -var var.release -out "$(ProjectDir)Release.wxs"
+      "C:\Program Files (x86)\WiX Toolset v3.10\bin\heat.exe" dir $(DYNAMO_REVIT_SAMPLES_PATH) -cg SAMPLES -gg -scom -sreg -dr PROGDATA -var var.samples -t "$(ProjectDir)Samples.xsl" -out "$(ProjectDir)Samples.wxs"
     </PreBuildEvent>
   </PropertyGroup>
 

@@ -42,7 +42,7 @@
                   Value="&quot;[DYNAMO_REVIT_INSTALLDIR]DynamoAddinGenerator.exe&quot; /uninstall &quot;[DYNAMO_REVIT_INSTALLDIR]&quot;" />
     <CustomAction Id="RemoveRevitAddin" Return="ignore" BinaryKey="WixCA" DllEntry="CAQuietExec" Execute="deferred" Impersonate="no" />
 
-    <CustomTable Id="AdskCustomFile">
+    <!--CustomTable Id="AdskCustomFile">
       <Column Id="Component_" PrimaryKey="yes" Type="string" Width="72" KeyTable="Component" KeyColumn="1" Category="Identifier" Description="Required foreign key into the Component Table." Modularize="Column" />
       <Column Id="SourceFileName" Type="string" Width="0" Category="Text" Description="File name." />
       <Column Id="Flags" Type="int" Width="2" MinValue="0" Description="Flags" />
@@ -78,7 +78,7 @@
         <Data Column="Condition" />
         <Data Column="Sequence">1400</Data>
       </Row>
-    </CustomTable>
+    </CustomTable-->
 
     <Icon Id="DynamoInstaller.ico" SourceFile="$(var.base)\tools\install\Extra\DynamoInstaller.ico"/>
 
@@ -87,10 +87,10 @@
         Root='HKLM' Key='SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Dynamo $(var.Major).$(var.Minor)' Name='InstallLocation' />
     </Property>
 
-    <Property Id="ALLUSERS" Value="1" />
+    <!--Property Id="ALLUSERS" Value="1" />
     <Property Id="ARPCONTACT" Value="Autodesk, Inc." />
     <Property Id="ProductNameGlob" Value="$(var.ProductName) $(var.Major).$(var.Minor).$(var.Rev)" />
-    <Property Id="ShortProductName" Value="DYN" />
+    <Property Id="ShortProductName" Value="DYN" /-->
     <Property Id="ARPPRODUCTICON" Value="DynamoInstaller.ico" />
 
     <Property Id="SAMPLEFOLDER">
@@ -115,8 +115,8 @@
              Title="Dynamo Revit"
              Level="1">
       <ComponentGroupRef Id="RELEASE"/>
-      <ComponentGroupRef Id="DEFINITIONS"/>
-      <ComponentGroupRef Id="GALLERY"/>
+      <!--ComponentGroupRef Id="DEFINITIONS"/>
+      <ComponentGroupRef Id="GALLERY"/-->
       <ComponentRef Id="ProductRegistry" />
       <Feature Id="DYNAMO_REVIT_SAMPLES"
                Title="Sample Content"
