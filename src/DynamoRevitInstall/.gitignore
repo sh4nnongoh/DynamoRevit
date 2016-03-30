@@ -1,3 +1,9 @@
 harvest
 sign
-
+Definitions-autogen.wxs
+Gallery-autogen.wxs
+Release-autogen.wxs
+Revit2015-autogen.wxs
+Revit2016-autogen.wxs
+Revit2017-autogen.wxs
+Samples-autogen.wxs

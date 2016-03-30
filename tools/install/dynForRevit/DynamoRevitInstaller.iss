@@ -3,12 +3,14 @@
 
 #define Major
 #define Minor
-#define Rev
 #define Build
-#expr ParseVersion("..\..\..\DynamoRevit\bin\AnyCPU\Release\Revit_2015\DynamoRevitDS.dll", Major, Minor, Rev, Build)
+#define Rev
+#expr ParseVersion("..\..\..\Dynamo\bin\AnyCPU\Release\Revit_2017\DynamoRevitDS.dll", Major, Minor, Build, Rev)
 #define ProductName "Dynamo Revit"
-#define ProductVersion Str(Major) + "." + Str(Minor) + "." + Str(Rev)
-#define FullVersion GetFileVersion("..\..\bin\AnyCPU\Release\Revit2015\DynamoRevitDS.dll")
+#define CoreProductName "Dynamo Core"
+#define ProductVersion Str(Major) + "." + Str(Minor) + "." + Str(Build)
+#define FullVersion Str(Major) + "." + Str(Minor) + "." + Str(Build) + "." + Str(Rev)
+#define DynamoTools "..\..\..\Dynamo\tools"
 
 [Setup]
 AppName={#ProductName}
@@ -18,16 +20,16 @@ AppCopyright=
 AppPublisherURL=http://www.dynamobim.org
 AppSupportURL=http://www.dynamobim.org
 AppUpdatesURL=http://www.dynamobim.org
-AppVersion={#ProductVersion}
-VersionInfoVersion={#ProductVersion}
+AppVersion={#FullVersion}
+VersionInfoVersion={#FullVersion}
 VersionInfoCompany={#ProductName}
 VersionInfoDescription={#ProductName} {#ProductVersion}
 VersionInfoTextVersion={#ProductName} {#ProductVersion}
 VersionInfoCopyright=
 DefaultGroupName=Dynamo
 OutputDir=.\
-OutputBaseFilename=InstallDynamoRevit{#ProductVersion}
-SetupIconFile=..\..\..\Dynamo\doc\distrib\Images\logo_square_32x32.ico
+OutputBaseFilename=DynamoRevit{#ProductVersion}
+SetupIconFile=.\Extra\DynamoInstaller.ico
 Compression=lzma
 SolidCompression=true
 RestartIfNeededByRun=false
@@ -35,96 +37,123 @@ FlatComponentsList=false
 ShowLanguageDialog=auto
 DirExistsWarning=no
 DisableDirPage=no
-;CreateAppDir=no
-DefaultDirName={pf64}\{#ProductName} {#Major}.{#Minor}
+DefaultDirName={pf64}\Dynamo
+Uninstallable = no
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
+[Components]
+Name: "DynamoCore"; Description: "Dynamo Core Functionality"; Types: full custom; Flags: fixed
+Name: "DynamoForRevit2015"; Description: "Dynamo For Revit 2015"; Types: full custom;
+Name: "DynamoForRevit2016"; Description: "Dynamo For Revit 2016"; Types: full custom;
+Name: "DynamoForRevit2017"; Description: "Dynamo For Revit 2017"; Types: full custom;
+
 [Files]
-Source: "..\..\src\DynamoRevitInstall\bin\x86\Release\DynamoRevit.msi"; DestDir: "{tmp}"; Flags: ignoreversion
-Source: "..\..\..\Dynamo\src\DynamoInstall\bin\x86\Release\DynamoCore.msi"; DestDir: "{tmp}"; Flags: ignoreversion
+;Needed before installation guaranteed to be complete
+Source: "{#DynamoTools}\install\Extra\RevitInstallDetective.exe"; Flags: dontcopy
+Source: "{#DynamoTools}\install\Extra\RevitAddinUtility.dll"; Flags: dontcopy
+Source: "{#DynamoTools}\install\Installers\DynamoRevit.msi"; DestDir: {tmp}; Flags: ignoreversion
+Source: "{#DynamoTools}\install\Installers\DynamoCore.msi"; DestDir: {tmp}; Flags: ignoreversion
+;DirectX
+Source: "{#DynamoTools}\install\Extra\DirectX\*.*"; DestDir: {tmp}\DirectX;
+;IronPython-2
+Source: "{#DynamoTools}\install\Extra\IronPython-2.7.3.msi"; DestDir: {tmp}; Flags: deleteafterinstall;
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Run]
-Filename: "msiexec.exe"; Parameters: "/i ""{tmp}\DynamoCore.msi"" /l* DynamoCore.log INSTALLDIR=""{app}"""
-Filename: "msiexec.exe"; Parameters: "/i ""{tmp}\DynamoRevit.msi"" /l* DynamoRevit.log INSTALLDIR=""{app}"""
-
+Filename: "msiexec.exe"; Parameters: "/i ""{tmp}\IronPython-2.7.3.msi"" /qn"; WorkingDir: {tmp};
+Filename: "{tmp}\DirectX\dxsetup.exe"; Parameters: "/silent"
+; Install Dynamo Core
+Filename: "msiexec.exe"; Parameters: "/i \
+                                     ""{tmp}\DynamoCore.msi"" \
+                                     /l* DynamoCore.log \
+                                     INSTALLDIR=""{code:DynamoCoreInstallPath}"""; \
+                                     WorkingDir: {tmp}; \
+                                     StatusMsg: Installing Dynamo Core; \
+                                     Check: CheckInstallDynamoCore;
+; Install Dynamo Revit
+Filename: "msiexec.exe"; Parameters: "/i \
+                                     ""{tmp}\DynamoRevit.msi"" \
+                                     /l* DynamoRevit.log \
+                                     INSTALLDIR=""{code:DynamoRevitInstallPath}"" \
+                                     SELECT_REVIT_2015=""{code:CheckRevit2015}"" \
+                                     SELECT_REVIT_2016=""{code:CheckRevit2016}"" \
+                                     SELECT_REVIT_2017=""{code:CheckRevit2017}"" \
+                                     ADSK_SETUP_EXE=""1"""; \
+                                     WorkingDir: {tmp}; \
+                                     StatusMsg: Installing Dynamo Revit; \
+                                     Check: CheckInstallDynamoRevit;
 [Code]
-var
-silentFlag : String;
-updateFlag : String;
-
-// Nothing to do with First page or any page
-function InitializeSetup(): Boolean;
-var
-  j: Cardinal;
-  sUnInstPath: String;
-  sUninstallString: String;
-  revision: Cardinal;
-  iResultCode: Integer;
-  exeVersion: String;
-  sMsg: String;
-  sMsg2: String;
-begin
-  silentFlag := ''
-  updateFlag := ''
-  for j := 1 to ParamCount do
-    begin
-      if (CompareText(ParamStr(j),'/verysilent') = 0)  then
-        silentFlag := '/VERYSILENT'
-      else if (CompareText(ParamStr(j),'/silent') = 0)  then
-          silentFlag := '/SILENT'
-      else if (CompareText(ParamStr(j),'/UPDATE') = 0) then
-          updateFlag := '/UPDATE'
-    end;
-
-  // if old EXE version of 0.8.0 is installed, uninstall it
-  sUnInstPath := 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{6B5FA6CA-9D69-46CF-B517-1F90C64F7C0B}_is1'
-  sUnInstallString := ''
-  exeVersion := ''
-  RegQueryStringValue(HKLM, sUnInstPath, 'UnInstallString', sUninstallString)
-  RegQueryStringValue(HKLM, sUnInstPath, 'DisplayVersion', exeVersion)
-  if (sUnInstallString <> '') and (exeVersion = '0.8.0') then
-	Exec(RemoveQuotes(sUnInstallString), '/VERYSILENT /NORESTART /SUPPRESSMSGBOXES /UPDATE', '', SW_HIDE, ewWaitUntilTerminated, iResultCode);
-
-  result := true
-
-  sUnInstPath := ExpandConstant('Software\Microsoft\Windows\CurrentVersion\Uninstall\{#ProductName} {#Major}.{#Minor}');
-  sUninstallString := '';
-  RegQueryStringValue(HKLM64, sUnInstPath, 'UnInstallString', sUninstallString);
-    if (sUninstallString <> '') then
-	begin
-		if not RegQueryDWordValue(HKLM64, sUnInstPath, 'RevVersion', revision) then
-			begin
-				sMsg := ExpandConstant('Could not determine the revision number for already installed {#ProductName} {#Major}.{#Minor}.')
-				sMsg2 := ExpandConstant('Please uninstall {#ProductName} {#Major}.{#Minor} manually, before proceeding with the installation.')
-				MsgBox(sMsg + #13#10#13#10 + sMsg2, mbInformation, MB_OK);
-				result := false
-			end
-		else if (revision > {#Rev}) then
-			begin
-				sMsg := ExpandConstant('A newer version of {#ProductName} {#ProductVersion} is already installed.')
-				sMsg2 := ExpandConstant('Please uninstall {#ProductName} {#Major}.{#Minor}.' + IntToStr(revision) + ' manually, before proceeding with the installation.')
-				MsgBox(sMsg + #13#10#13#10 + sMsg2, mbInformation, MB_OK);
-				result := false
-			end
-	end;
+// GLOBAL VARIABLES ................................................................. //
+type
+  TRegistry = record
+  productName           : String;
+  uninstallPath         : String;
+  installLocation       : String;
+  parentInstallLocation : String;
+  version               : String;
+  majorVersion          : Cardinal;
+  minorVersion          : Cardinal;
+  buildVersion          : Cardinal;
+  revVersion            : Cardinal;
+  uninstallParam        : String;
+  uninstallString       : String;
 end;
 
-// Nothing to do with First page or any page
-procedure CurStepChanged(CurStep: TSetupStep);
-var 
-  sUnInstPath: String;
-  sUninstallString: String;
-  sUnInstallParam: String;
-  iResultCode: Integer;
+var
+  // Variables containing install directory.
+  DynamoCoreDirectory   : String;
+  DynamoRevitDirectory  : String;
+  // Flags determining to install the product or not.
+  InstallDynamoCore     : Boolean;
+  InstallDynamoRevit    : Boolean;
+  // Variables containing registry values of existing installed product.
+  DynamoCoreRegistry    : TRegistry;
+  DynamoRevitRegistry   : TRegistry;
+  OldDynamoCoreRegistry : TRegistry;
+  //OldDynamoRevitRegistry : TRegistry;
+
+// VARIOUS INSTALL STAGES ................................................................. //
+#include "1-InitializeSetup.iss"
+#include "2-ComponentSelection.iss"
+#include "3-PreInstall.iss"
+
+// SCRIPTED CONSTANTS & CHECK FUNCTIONS ................................................... //
+// These functions are called from the [Run] section of the script.
+function CheckRevit2015(Value: string): String;
 begin
-  if (CurStep=ssInstall) then
-    begin
-        sUnInstPath := ExpandConstant('Software\Microsoft\Windows\CurrentVersion\Uninstall\{#ProductName} {#Major}.{#Minor}');
-        RegQueryStringValue(HKLM64, sUnInstPath, 'UnInstallString', sUninstallString);
-        RegQueryStringValue(HKLM64, sUnInstPath, 'UnInstallParam', sUninstallParam);
-        Exec(sUnInstallString, sUnInstallParam, '', SW_HIDE, ewWaitUntilTerminated, iResultCode);
-    end;
+  Result := '0';
+  if (WizardForm.ComponentsList.Checked[1]) then
+    Result := '1';
+end;
+function CheckRevit2016(Value: string): String;
+begin
+  Result := '0';
+  if (WizardForm.ComponentsList.Checked[2]) then
+    Result := '1';
+end;
+function CheckRevit2017(Value: string): String;
+begin
+  Result := '0';
+  if (WizardForm.ComponentsList.Checked[3]) then
+    Result := '1';
+end;
+
+function DynamoCoreInstallPath(Value: string): String;
+begin
+  Result := DynamoCoreDirectory;
+end;
+function DynamoRevitInstallPath(Value: string): String;
+begin
+  Result := DynamoRevitDirectory;
+end;
+
+function CheckInstallDynamoCore: Boolean;
+begin
+  Result := InstallDynamoCore;
+end;
+function CheckInstallDynamoRevit: Boolean;
+begin
+  Result := InstallDynamoRevit;
 end;

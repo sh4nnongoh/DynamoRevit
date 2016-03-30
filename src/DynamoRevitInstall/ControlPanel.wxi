@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include>
+    
+  <!--Property Id="ARPCOMMENTS" Value="Acme Corporation Comments" /-->
+  <Property Id="ARPCONTACT" Value="Autodesk, Inc." />
+  <Property Id="ARPPRODUCTICON" Value="DynamoInstaller.ico" />
+  <!--Property Id="ARPHELPLINK" Value="Your help link" />
+  <Property Id="ARPREADME" Value="Your README link" />
+  <Property Id="ARPURLINFOABOUT" Value="Your &apos;About&apos; information" />
+  <Property Id="ARPURLUPDATEINFO" Value="Your &apos;Update&apos; URL" />
+  <Property Id="ARPHELPTELEPHONE" Value="URL where users can find your support phone number" />
+  <Property Id="ARPAUTHORIZEDCDFPREFIX" Value="URL of the update channel for the application" /-->
+  <Property Id="ARPSIZE" Value="3" />
+  
+
+  <Property Id="ARPNOMODIFY" Value="1" />
+  <Property Id="ARPNOREPAIR" Value="1" />
+  <!--
+  <Property Id="ARPNOREMOVE" Value="0" />
+  <Property Id="ARPSYSTEMCOMPONENT" Value="0" />
+  -->
+
+  <Icon Id="DynamoInstaller.ico" SourceFile="$(var.base)\tools\install\Extra\DynamoInstaller.ico"/>
+
+  <!-- Set up ARPINSTALLLOCATION property -->
+  <CustomAction Id="SetARPINSTALLLOCATION" Property="ARPINSTALLLOCATION" Value="[DYNAMO_REVIT_INSTALLDIR]" />
+
+  <!-- Sequences -->
+  <InstallExecuteSequence>
+    <Custom Action="SetARPINSTALLLOCATION" After="InstallValidate"></Custom>
+  </InstallExecuteSequence>
+  
+</Include>

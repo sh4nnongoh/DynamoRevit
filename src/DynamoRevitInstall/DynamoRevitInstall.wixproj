@@ -1,42 +1,42 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  
   <ImportGroup Label="PropertySheets">
     <Import Project="$(SolutionDir)/Config/Install.props" />
   </ImportGroup>
   <PropertyGroup>
-	<SuppressValidation>true</SuppressValidation>
-  </PropertyGroup>
-  <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>3.8</ProductVersion>
-    <ProjectGuid>{c7495640-0d0c-46ab-a5f3-d5be78f89a0d}</ProjectGuid>
+    <ProjectGuid>c7495640-0d0c-46ab-a5f3-d5be78f89a0d</ProjectGuid>
     <SchemaVersion>2.0</SchemaVersion>
     <OutputName>DynamoRevit</OutputName>
     <OutputType>Package</OutputType>
     <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' AND '$(MSBuildExtensionsPath32)' != '' ">$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
     <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' ">$(MSBuildExtensionsPath)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
+    <Name>DynamoRevitInstall</Name>
   </PropertyGroup>
-  
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <OutputPath>$(InstallOutputPath)\</OutputPath>
+    <OutputPath>$(OutputPath)</OutputPath>
     <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
-    <DefineConstants>Debug;base=$(DYNAMO_REVIT_BASE_PATH);harvest=$(DYNAMO_REVIT_HARVEST_PATH);samples=$(DYNAMO_REVIT_SAMPLES_PATH);release=$(DYNAMO_REVIT_RELEASE_PATH)</DefineConstants>
+    <DefineConstants>definitions=$(DYNAMO_REVIT_MIGRATION_NODES_PATH);base=$(DYNAMO_REVIT_BASE_PATH);revit2015=$(DYNAMO_REVIT_HARVEST_PATH)\Revit_2015;revit2016=$(DYNAMO_REVIT_HARVEST_PATH)\Revit_2016;revit2017=$(DYNAMO_REVIT_HARVEST_PATH)\Revit_2017;extern=$(DYNAMO_REVIT_HARVEST_PATH)\Extern;samples=$(DYNAMO_REVIT_SAMPLES_PATH);gallery=$(DYNAMO_REVIT_GALLERY_PATH);modules=$(DYNAMO_REVIT_INSTALL_BASE_PATH);solution=$(SolutionDir)</DefineConstants>
   </PropertyGroup>
-  
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-    <OutputPath>$(InstallOutputPath)\</OutputPath>
+    <OutputPath>$(OutputPath)</OutputPath>
     <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
-    <DefineConstants>base=$(DYNAMO_REVIT_BASE_PATH);harvest=$(DYNAMO_REVIT_HARVEST_PATH);samples=$(DYNAMO_REVIT_SAMPLES_PATH);release=$(DYNAMO_REVIT_RELEASE_PATH)</DefineConstants>
+    <DefineConstants>definitions=$(DYNAMO_REVIT_MIGRATION_NODES_PATH);base=$(DYNAMO_REVIT_BASE_PATH);revit2015=$(DYNAMO_REVIT_HARVEST_PATH)\Revit_2015;revit2016=$(DYNAMO_REVIT_HARVEST_PATH)\Revit_2016;revit2017=$(DYNAMO_REVIT_HARVEST_PATH)\Revit_2017;extern=$(DYNAMO_REVIT_HARVEST_PATH)\Extern;samples=$(DYNAMO_REVIT_SAMPLES_PATH);gallery=$(DYNAMO_REVIT_GALLERY_PATH);modules=$(DYNAMO_REVIT_INSTALL_BASE_PATH);solution=$(SolutionDir)</DefineConstants>
+    <WixVariables>
+    </WixVariables>
   </PropertyGroup>
-  
   <ItemGroup>
+    <Compile Include="Definitions-autogen.wxs" />
+    <Compile Include="Gallery-autogen.wxs" />
     <Compile Include="Product.wxs" />
-    <Compile Include="Release.wxs" />
-    <Compile Include="Samples.wxs" />
+    <Compile Include="Release-autogen.wxs" />
+    <Compile Include="Revit2015-autogen.wxs" />
+    <Compile Include="Revit2016-autogen.wxs" />
+    <Compile Include="Revit2017-autogen.wxs" />
+    <Compile Include="Samples-autogen.wxs" />
   </ItemGroup>
-  
   <ItemGroup>
     <WixExtension Include="WixUtilExtension">
       <HintPath>$(WixExtDir)\WixUtilExtension.dll</HintPath>
@@ -47,14 +47,17 @@
       <Name>WixUIExtension</Name>
     </WixExtension>
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Autodesk.wxi" />
+    <Content Include="Conditions.wxi" />
+    <Content Include="ControlPanel.wxi" />
+  </ItemGroup>
   <Import Project="$(WixTargetsPath)" />
-  
-  <Target Name="BeforeBuild"> 
-	<!--GetAssemblyIdentity AssemblyFiles="$(DYNAMO_REVIT_BASE_PATH)\bin\AnyCPU\Install\$(REVIT_VERSION)\DynamoRevitDS.dll"-->
-    <GetAssemblyIdentity AssemblyFiles="$(DYNAMO_REVIT_BASE_PATH)\bin\AnyCPU\$(Configuration)\$(REVIT_VERSION)\DynamoRevitDS.dll">
-      <Output TaskParameter="Assemblies" ItemName="Assembly" />
+  <Target Name="BeforeBuild">
+    <GetAssemblyIdentity AssemblyFiles="$(DYNAMO_REVIT_BIN_PATH)\Revit_2017\DynamoRevitDS.dll">
+      <Output TaskParameter="Assemblies" ItemName="AssemblyVersions" />
     </GetAssemblyIdentity>
-    <CreateProperty Value="%(Assembly.Version)">
+    <CreateProperty Value="%(AssemblyVersions.Version)">
       <Output TaskParameter="Value" PropertyName="FullVersion" />
     </CreateProperty>
     <CreateProperty Value="$(FullVersion.Split('.')[0])">
@@ -64,44 +67,53 @@
       <Output TaskParameter="Value" PropertyName="Minor" />
     </CreateProperty>
     <CreateProperty Value="$(FullVersion.Split('.')[2])">
-      <Output TaskParameter="Value" PropertyName="Rev" />
+      <Output TaskParameter="Value" PropertyName="Build" />
     </CreateProperty>
     <CreateProperty Value="$(FullVersion.Split('.')[3])">
-      <Output TaskParameter="Value" PropertyName="Build" />
+      <Output TaskParameter="Value" PropertyName="Rev" />
     </CreateProperty>
     <CreateProperty Value="Dynamo Revit">
       <Output TaskParameter="Value" PropertyName="ProductName" />
     </CreateProperty>
-    <CreateProperty Value="FullVersion=$(FullVersion);ProductName=$(ProductName);Major=$(Major);Minor=$(Minor);Rev=$(Rev);Build=$(Build);$(DefineConstants)">
+    <CreateProperty Value="Dynamo">
+      <Output TaskParameter="Value" PropertyName="Manufacturer" />
+    </CreateProperty>
+    <CreateProperty Value="{E1D2382A-7EFD-4844-9664-7D84DF316B62}">
+      <Output TaskParameter="Value" PropertyName="UpgradeCode" />
+    </CreateProperty>
+    <CreateProperty Value="UpgradeCode=$(UpgradeCode);FullVersion=$(FullVersion);Manufacturer=$(Manufacturer);ProductName=$(ProductName);Major=$(Major);Minor=$(Minor);Rev=$(Rev);Build=$(Build);$(DefineConstants)">
       <Output TaskParameter="Value" PropertyName="DefineConstants" />
     </CreateProperty>
+    <Exec Command="rd /s /q $(DYNAMO_REVIT_HARVEST_PATH)" />
+    <Exec Command="MD $(DYNAMO_REVIT_HARVEST_PATH)\Extern" IgnoreExitCode="true" />
+    <Exec Command="copy $(DYNAMO_REVIT_BIN_PATH)\DynamoAddInGenerator.exe $(DYNAMO_REVIT_HARVEST_PATH)\Extern" IgnoreExitCode="true" />
+    <Exec Command="copy $(DYNAMO_REVIT_BIN_PATH)\DynamoInstallDetective.dll $(DYNAMO_REVIT_HARVEST_PATH)\Extern" IgnoreExitCode="true" />
+    <Exec Command="copy $(DYNAMO_REVIT_BIN_PATH)\RevitAddinUtility.dll $(DYNAMO_REVIT_HARVEST_PATH)\Extern" IgnoreExitCode="true" />
+    <!--
+	  -XF <FileName>	: Excludes files that match the specified names or paths
+	  -e				: Copies subdirectories
+	  -XD <Directory>	: Exclude the specified directory
+	-->
+    <Exec Command="robocopy $(DYNAMO_REVIT_BIN_PATH)\Revit_2015 $(DYNAMO_REVIT_HARVEST_PATH)\Revit_2015\ -XF %2aTest%2a.dll %2a.pdb TestResult.xml -e -XD int -XD samples -XD gallery -XD 0.8" IgnoreExitCode="true" />
+    <Exec Command="robocopy $(DYNAMO_REVIT_BIN_PATH)\Revit_2016 $(DYNAMO_REVIT_HARVEST_PATH)\Revit_2016\ -XF %2aTest%2a.dll %2a.pdb TestResult.xml -e -XD int -XD samples -XD gallery -XD 0.8" IgnoreExitCode="true" />
+    <Exec Command="robocopy $(DYNAMO_REVIT_BIN_PATH)\Revit_2017 $(DYNAMO_REVIT_HARVEST_PATH)\Revit_2017\ -XF %2aTest%2a.dll %2a.pdb TestResult.xml -e -XD int -XD samples -XD gallery -XD 0.8" IgnoreExitCode="true" />
+    <Exec Command="$(DYNAMO_REVIT_BASE_PATH)\..\Dynamo\tools\install\Extra\InstallerSpec.exe $(DYNAMO_REVIT_HARVEST_PATH) $(DYNAMO_REVIT_HARVEST_PATH)\InstallSpec.xml DynamoRevitDS.dll" IgnoreExitCode="true" />
+    <Exec Condition="Exists('$(MSBuildProjectDirectory)\Digital_Sign.bat')" Command="$(MSBuildProjectDirectory)\Digital_Sign.bat $(DYNAMO_REVIT_HARVEST_PATH)\binariestosign.txt" IgnoreExitCode="true" />
+    <HeatDirectory Directory="$(DYNAMO_REVIT_HARVEST_PATH)\Extern" PreprocessorVariable="var.extern" OutputFile="$(ProjectDir)Release-autogen.wxs" ComponentGroupName="RELEASE" DirectoryRefId="DYNAMO_REVIT_INSTALLDIR" GenerateGuidsNow="true" ToolPath="$(WixToolPath)" SuppressCom="true" SuppressRegistry="true" SuppressRootDirectory="true" />
+    <HeatDirectory Directory="$(DYNAMO_REVIT_HARVEST_PATH)\Revit_2015" PreprocessorVariable="var.revit2015" OutputFile="$(ProjectDir)Revit2015-autogen.wxs" ComponentGroupName="REVIT_2015" DirectoryRefId="DYNAMO_REVIT_INSTALLDIR" GenerateGuidsNow="true" Transforms="$(ProjectDir)Release.xsl" ToolPath="$(WixToolPath)" SuppressCom="true" SuppressRegistry="true" SuppressRootDirectory="false" />
+    <HeatDirectory Directory="$(DYNAMO_REVIT_HARVEST_PATH)\Revit_2016" PreprocessorVariable="var.revit2016" OutputFile="$(ProjectDir)Revit2016-autogen.wxs" ComponentGroupName="REVIT_2016" DirectoryRefId="DYNAMO_REVIT_INSTALLDIR" GenerateGuidsNow="true" Transforms="$(ProjectDir)Release.xsl" ToolPath="$(WixToolPath)" SuppressCom="true" SuppressRegistry="true" SuppressRootDirectory="false" />
+    <HeatDirectory Directory="$(DYNAMO_REVIT_HARVEST_PATH)\Revit_2017" PreprocessorVariable="var.revit2017" OutputFile="$(ProjectDir)Revit2017-autogen.wxs" ComponentGroupName="REVIT_2017" DirectoryRefId="DYNAMO_REVIT_INSTALLDIR" GenerateGuidsNow="true" Transforms="$(ProjectDir)Release.xsl" ToolPath="$(WixToolPath)" SuppressCom="true" SuppressRegistry="true" SuppressRootDirectory="false" />
+    <HeatDirectory Directory="$(DYNAMO_REVIT_SAMPLES_PATH)" PreprocessorVariable="var.samples" OutputFile="$(ProjectDir)Samples-autogen.wxs" ComponentGroupName="SAMPLES" DirectoryRefId="PROGDATA" GenerateGuidsNow="true" Transforms="$(ProjectDir)Samples.xsl" ToolPath="$(WixToolPath)" SuppressCom="true" SuppressRegistry="true" />
+    <HeatDirectory Directory="$(DYNAMO_REVIT_GALLERY_PATH)" PreprocessorVariable="var.gallery" OutputFile="$(ProjectDir)Gallery-autogen.wxs" ComponentGroupName="GALLERY" DirectoryRefId="PROGDATA" GenerateGuidsNow="true" ToolPath="$(WixToolPath)" SuppressCom="true" SuppressRegistry="true" />
+    <HeatDirectory Directory="$(DYNAMO_REVIT_MIGRATION_NODES_PATH)" PreprocessorVariable="var.definitions" OutputFile="$(ProjectDir)Definitions-autogen.wxs" ComponentGroupName="DEFINITIONS" DirectoryRefId="PROGDATA" GenerateGuidsNow="true" Transforms="$(ProjectDir)Definitions.xsl" ToolPath="$(WixToolPath)" SuppressCom="true" SuppressRegistry="true" />
   </Target>
-
+  <Target Name="AfterBuild">
+  </Target>
+  <PropertyGroup>
+    <PostBuildEvent>xcopy $(OutputPath)$(OutputName).msi  $(DYNAMO_REVIT_BASE_PATH)\..\Dynamo\tools\install\Installers\ /y</PostBuildEvent>
+	</PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>
-	  <!-- Clear the release directory to ensure no redundant files build with the msi -->
-      rmdir $(DYNAMO_REVIT_RELEASE_PATH) /s /q
-	  <!--
-	    -XF <FileName>	: Excludes files that match the specified names or paths
-		-e				: Copies subdirectories
-		-XD <Directory>	: Exclude the specified directory
-	  -->
-      <!--robocopy $(DYNAMO_REVIT_BASE_PATH)\bin\AnyCPU\Install\ $(DYNAMO_REVIT_RELEASE_PATH) -XF %2aTests.dll %2a.pdb -e -XD int-->
-	  robocopy $(DYNAMO_REVIT_BASE_PATH)\bin\AnyCPU\$(Configuration)\ $(DYNAMO_REVIT_RELEASE_PATH) -XF %2aTests.dll %2a.pdb -e -XD int
-      <!--
-	    -cg <Name>	: Component Group Name
-		-gg			: Generate GUIDs now
-		-scom		: Suppress COM elements
-		-sreg		: Suppress Registry Harvesting
-		-srd		: Suppress harvesting the root directory as an element
-		-dr <Name>	: Directory reference to root directories
-		-var <Name>	: Substitute File/@Source="SourceDir" with a preprocessor or a wix variable
-		-out		: Specify output filename
-		-t <xsl>	: Transform harvested output with XSL file
-	  -->
-	  "C:\Program Files (x86)\WiX Toolset v3.10\bin\heat.exe" dir $(DYNAMO_REVIT_RELEASE_PATH) -cg RELEASE -gg -scom -sreg -srd -dr DYNAMO_REVIT_INSTALLDIR -var var.release -out "$(ProjectDir)Release.wxs"
-      "C:\Program Files (x86)\WiX Toolset v3.10\bin\heat.exe" dir $(DYNAMO_REVIT_SAMPLES_PATH) -cg SAMPLES -gg -scom -sreg -dr PROGDATA -var var.samples -t "$(ProjectDir)Samples.xsl" -out "$(ProjectDir)Samples.wxs"
     </PreBuildEvent>
   </PropertyGroup>
-
 </Project>

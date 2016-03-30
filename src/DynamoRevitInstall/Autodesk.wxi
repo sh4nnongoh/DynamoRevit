@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include>
+  <!-- ORIGINAL CODE SECTION -->
+  <CustomTable Id="AdskCustomFile">
+    <Column Id="Component_" PrimaryKey="yes" Type="string" Width="72" KeyTable="Component" KeyColumn="1" Category="Identifier" Description="Required foreign key into the Component Table." Modularize="Column" />
+    <Column Id="SourceFileName" Type="string" Width="0" Category="Text" Description="File name." />
+    <Column Id="Flags" Type="int" Width="2" MinValue="0" Description="Flags" />
+  </CustomTable>
+  <EnsureTable Id="AdskCustomFile" />
+  <CustomTable Id="AdskExecuteSequence">
+    <Column Id="Action" PrimaryKey="yes" Type="string" Width="72" Category="Identifier" Description="Name of action to invoke, either in the engine or the handler DLL." Modularize="Column" />
+    <Column Id="Condition" Type="string" Width="255" Nullable="yes" Category="Condition" Description="Optional expression which skips the action if evaluates to expFalse.If the expression syntax is invalid, the engine will terminate, returning iesBadActionData." Modularize="Condition" />
+    <Column Id="Sequence" Type="int" Width="2" Nullable="yes" MinValue="-4" MaxValue="32767" Description="Number that determines the sort order in which the actions are to be executed.  Leave blank to suppress action." />
+    <Row>
+      <Data Column="Action">AppSearch</Data>
+      <Data Column="Condition" />
+      <Data Column="Sequence">40</Data>
+    </Row>
+    <Row>
+      <Data Column="Action">CostInitialize</Data>
+      <Data Column="Condition" />
+      <Data Column="Sequence">800</Data>
+    </Row>
+    <Row>
+      <Data Column="Action">FileCost</Data>
+      <Data Column="Condition" />
+      <Data Column="Sequence">900</Data>
+    </Row>
+    <Row>
+      <Data Column="Action">CostFinalize</Data>
+      <Data Column="Condition" />
+      <Data Column="Sequence">1000</Data>
+    </Row>
+    <Row>
+      <Data Column="Action">InstallValidate</Data>
+      <Data Column="Condition" />
+      <Data Column="Sequence">1400</Data>
+    </Row>
+
+  </CustomTable>
+  <Property Id="ADSK_GLOBAL_PROP_LIST" Value="INSTALLDIR;ADSK_LAUNCH_MODE;ADSK_EULA;ADLM_EULA_COUNTRY;ADSK_EULA_STATUS" />
+  <Property Id="ADSK_INSTALL_PATH" Value="Autodesk\Dynamo $(var.Major).$(var.Minor)" />
+  <Property Id="ALLUSERS" Value="1" />
+  <Property Id="ProductNameGlob" Value="$(var.ProductName) $(var.Major).$(var.Minor).$(var.Rev)" />
+  <Property Id="ShortProductName" Value="DYN" />
+  <!--===============================================-->
+</Include>
