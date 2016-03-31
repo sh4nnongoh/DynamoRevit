@@ -44,7 +44,7 @@ Uninstallable = no
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Components]
-Name: "DynamoCore"; Description: "Dynamo Core Functionality"; Types: full custom; Flags: fixed
+Name: "DynamoCore"; Description: "Dynamo Core Functionality"; Types: full custom;
 Name: "DynamoForRevit2015"; Description: "Dynamo For Revit 2015"; Types: full custom;
 Name: "DynamoForRevit2016"; Description: "Dynamo For Revit 2016"; Types: full custom;
 Name: "DynamoForRevit2017"; Description: "Dynamo For Revit 2017"; Types: full custom;
@@ -95,7 +95,6 @@ type
   uninstallParam        : String;
   uninstallString       : String;
   productCode           : String;
-  //upgradeCode           : String;
   version               : String;
   majorVersion          : Cardinal;
   minorVersion          : Cardinal;
@@ -110,11 +109,12 @@ var
   { Flags determining to install the product or not. }
   InstallDynamoCore     : Boolean;
   InstallDynamoRevit    : Boolean;
+  { Special flag to uninstall Old Dynamo Revit with old UpgradeCode}
+  UninstallDynamoRevit  : Boolean;
   { Variables containing registry values of existing installed product. }
   DynamoCoreRegistry    : TRegistry;
   DynamoRevitRegistry   : TRegistry;
   OldDynamoCoreRegistry : TRegistry;
-  //OldDynamoRevitRegistry : TRegistry;
 
 { VARIOUS INSTALL STAGES }
 #include "1-InitializeSetup.iss"

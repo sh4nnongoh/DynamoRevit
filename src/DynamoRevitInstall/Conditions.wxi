@@ -2,10 +2,10 @@
 <Include>
   
   <!-- Launch conditions -->
-  <!-- 1. Ensure this MSI is only executed from exe. -->
+  <!-- 1. Ensure this MSI is only executed from exe. >
   <Condition Message="You cannot install $(var.ProductName) by running this MSI.  Please run Setup.exe.">
     <![CDATA[Installed or ADSK_SETUP_EXE]]>
-  </Condition>
+  </Condition-->
   
   <!-- 2. Check if a specific DynamoCore.msi version is installed. -->
   <Condition Message="DynamoCore.msi version [ProductVersion] is not installed on this system.">

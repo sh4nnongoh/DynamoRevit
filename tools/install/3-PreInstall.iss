@@ -1,26 +1,24 @@
 { Function prototypes of helper methods. }
-//procedure UninstallProduct(var productRegistry: TRegistry); forward;
+procedure UninstallProduct(var productRegistry: TRegistry); forward;
 function InstallPath(productRegistry: TRegistry): String; forward;
 function CheckInstall(productRegistry: TRegistry): Boolean; forward;
 
 { Primary Method - Invoked immediately after user clicks install. }
 procedure CurStepChanged(CurStep: TSetupStep);
 begin
-  { Invoked at the beginning of the install phase }
+  // Invoked at the beginning of the install phase
   if (CurStep=ssInstall) then
   begin
-    { Uninstalls the Dynamo created by old installer if found. }
+    // Uninstalls the Dynamo created by old installer if found.
     if (OldDynamoCoreRegistry.uninstallKey<>'') then
       UninstallProduct(OldDynamoCoreRegistry);
       
-    {*
-      (1) Check if product(s) are already installed.  
-      (2) Check if there is same product version but different revision.
-          If the installed product(s) have the same product version (ie. MAJOR.MINOR.BUILD) but different revision,
-          asks user if they want to reinstall with the new revision.
-      (3) Obtain Install Path.
-          If already installed in a certain path, asks user if want to change to the specified path. 
-    *}
+    //  (1) Check if product(s) are already installed.  
+    //  (2) Check if there is same product version but different revision.
+    //      If the installed product(s) have the same product version (ie. MAJOR.MINOR.BUILD) but different revision,
+    //      asks user if they want to reinstall with the new revision.
+    //  (3) Obtain Install Path.
+    //      If already installed in a certain path, asks user if want to change to the specified path. 
     if (DynamoCoreRegistry.uninstallKey<>'') then
     begin
       InstallDynamoCore := CheckInstall(DynamoCoreRegistry);
@@ -44,7 +42,7 @@ var
   iResultCode: Integer;
 begin
   Exec(productRegistry.uninstallString, productRegistry.uninstallParam, '', SW_HIDE, ewWaitUntilTerminated, iResultCode);	
-  { Set uninstallPath to empty string to state the product is uninstalled. }
+  // Set uninstallPath to empty string to state the product is uninstalled.
   productRegistry.uninstallKey := '';
 end;
 
@@ -56,21 +54,19 @@ var
   iBuildVersion: Integer;
 begin
 
-  { Default install location is the one specified by user in Wizard }
+  // Default install location is the one specified by user in Wizard
   Result := WizardDirValue;
 
   if (productRegistry.installLocation<>'') then
   begin
-    { Need to check BUILD field of version number. }
+    // Need to check BUILD field of version number.
     if (productRegistry.buildVersion > StrToInt('{#Build}')) then
       Exit;
     
     if (productRegistry.parentInstallLocation<>WizardDirValue) then
     begin
-      {*
-        Ask the user a Yes/No question
-        If YES Uninstall existing product & INSTALLDIR = WizardDirValue, else INSTALLDIR = Parent Directory
-      *}
+      //  Ask the user a Yes/No question
+      //  If YES Uninstall existing product & INSTALLDIR = WizardDirValue, else INSTALLDIR = Parent Directory
       if MsgBox(productRegistry.productName + ' is already installed at ' 
                 + productRegistry.parentInstallLocation + '.' + #13#10#13#10 
                 + 'Do you want to reinstall into the new location specified?', 
@@ -96,10 +92,8 @@ begin
     begin
       if (productRegistry.revVersion>iCurrentRevision) then
       begin
-        {*
-          Ask the user a Yes/No question
-          If YES Uninstall existing product, else ABORT installation
-        *}
+        //  Ask the user a Yes/No question
+        //  If YES Uninstall existing product, else ABORT installation
         if MsgBox(productRegistry.productName + ' with Revision ' + IntToStr(productRegistry.revVersion) + ' is already installed.' 
                   + #13#10#13#10 + 'Do you want to reinstall with Revision {#Rev}?', 
                   mbConfirmation, MB_YESNO) = IDYES then

@@ -115,9 +115,9 @@
       <Feature Id="DYNAMO_REVIT_SAMPLES" Title="Sample Content" Level="1" >
         <ComponentGroupRef Id="SAMPLES"/>
       </Feature>
-      
-      <MergeRef Id="Setup"/> 
-	    <MergeRef Id="SetupUninstall"/>
+
+      <!--MergeRef Id="Setup"/> 
+	    <MergeRef Id="SetupUninstall"/-->
       
     </Feature> 
   
@@ -128,12 +128,12 @@
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="DYNAMO_REVIT_INSTALLDIR"/>
 
-      <Merge Id="Setup" Language="1033" SourceFile="$(var.modules)\Setup.msm" DiskId="1">
+      <!--Merge Id="Setup" Language="1033" SourceFile="$(var.modules)\Setup.msm" DiskId="1">
 			  <ConfigurationData Name="_9F0C03F7CF754E429FF686DE8D9B85AC.EA84BDA4715A43B6B1DEDE5ED0070F0E" Value="[DYNAMO_REVIT_INSTALLDIR]" />
       </Merge>
 	    <Merge Id="SetupUninstall" Language="1033" SourceFile="$(var.modules)\SetupUninstall.msm" DiskId="1">
 		    <ConfigurationData Name="UninstallKeysGUIDConfig" Value="{03D59716-3909-4AC8-850F-16CF66E6BE8B}" />
-	    </Merge>
+	    </Merge-->
 
       <Directory Id="CommonAppDataFolder">
         <Directory Id="DYNAMO_PROGDATA" Name="$(var.Manufacturer)">
