@@ -13,11 +13,12 @@ var
   sReverseDynamoRevitProductCode  : String;
   sTemp                           : String;
 begin
+  result := True
+  
   // To check for a revit installation 
   ExtractTemporaryFile('RevitInstallDetective.exe');
   ExtractTemporaryFile('RevitAddinUtility.dll');
-
-  result := True
+  
   // Check if there is a valid revit installation on this machine, if not - fail
   if not (RevitInstallationExists('Revit2017') or RevitInstallationExists('Revit2016') or RevitInstallationExists('Revit2015')) then
   begin
@@ -34,70 +35,79 @@ begin
   OldDynamoCoreRegistry.productName := 'Dynamo {#Major}.{#Minor}';
   GetRegistryValues(OldDynamoCoreRegistry);
   
-  (*MsgBox(DynamoCoreRegistry.productCode + #13#10 
-         + DynamoRevitRegistry.productCode + #13#10 
-         + OldDynamoCoreRegistry.productCode + #13#10 + #13#10 
-         , mbInformation, MB_OK);*)
-  
   // By default install both DynamoCore and DynamoRevit
   InstallDynamoCore := True;
   InstallDynamoRevit := True;
+  
   // If Old Dynamo Revit with wrong UpgradeCode is installed, it will be set to True.
   // If Dynamo Core/Revit already installed with same product version, it will be set to True.
   UninstallDynamoRevit := False;
   UninstallDynamoCore := False;
   
-  // 3 scenarios:
   // (1) Newer Dynamo Core installed. InstallDynamoCore := False;
   // (2) Newer Dynamo Revit installed. InstallDynamoRevit := False;
-  // (3) Old Dynamo Revit with wrong UpgradeCode. UninstallDynamoRevit := True;
+  // (3) Dynamo Core with same product version already installed. UninstallDynamoCore := True;
+  // (4) Dynamo Revit with same product version already installed. UninstallDynamoRevit := True;
   CheckUpgradeCodes(DynamoCoreRegistry, DynamoRevitRegistry);
   
+  // Let user know of newer versions already installed.
   if ((InstallDynamoCore=False) and (InstallDynamoRevit=False)) then
   begin
     MsgBox('Newer versions of Dynamo Core & Dynamo Revit already installed! Exiting Setup...', mbCriticalError, MB_OK);
     result := False;
+    Exit;
   end
   else if (InstallDynamoCore=False) then
   begin
-    MsgBox('Newer version of Dynamo Core already installed! It will not be installed', mbInformation, MB_OK);
+    MsgBox('Newer version of Dynamo Core already installed! It will not be installed.', mbInformation, MB_OK);
   end
   else if (InstallDynamoRevit=False) then
   begin
-    MsgBox('Newer version of Dynamo Revit already installed! It will not be installed', mbInformation, MB_OK);
+    MsgBox('Newer version of Dynamo Revit already installed! It will not be installed.', mbInformation, MB_OK);
   end
   
   // Compare Revision field
-  if (UninstallDynamoCore) then
+  // Double checks with user if want to uninstall or not if a higher revision is installed.
+  // sTemp will contain the Display String which will be displayed in the Popup box.
+  sTemp := '';
+  if ( ( UninstallDynamoCore and UninstallDynamoRevit )
+      and ( DynamoCoreRegistry.revVersion > StrToInt('{#Rev}') ) 
+      and ( DynamoRevitRegistry.revVersion > StrToInt('{#Rev}') )) then
+    sTemp := DynamoCoreRegistry.productName + ' & ' + DynamoRevitRegistry.productName
+  else if ( UninstallDynamoCore
+          and ( DynamoCoreRegistry.revVersion > StrToInt('{#Rev}') )) then
+    sTemp := DynamoCoreRegistry.productName
+  else if ( UninstallDynamoRevit
+          and ( DynamoRevitRegistry.revVersion > StrToInt('{#Rev}') )) then
+    sTemp := DynamoRevitRegistry.productName;
+    
+  // As long as user clicks no, Setup will end.
+  if ( ( sTemp <> '' )
+      and ( MsgBox('A newer Revision of ' + sTemp + ' is already installed.'
+              + #13#10#13#10 + 'Do you wish to uninstall it?'
+              + #13#10#13#10 + 'Choosing "No" will end the setup.'
+              , mbError, MB_YESNO) = IDNO )) then
   begin
-    if (DynamoCoreRegistry.revVersion > StrToInt('{#Rev}')) then
-    begin
-      if MsgBox('A newer Revision of ' + DynamoCoreRegistry.productName + ' is already installed.'
-                + + #13#10#13#10 + 'Do you wish to uninstall it?', mbInformation, MB_YESNO) = IDNO then
-        UninstallDynamoCore := True;
-    end;
-  end
-  else if (UninstallDynamoRevit) then
-  begin
-    if (DynamoRevitRegistry.revVersion > StrToInt('{#Rev}')) then
-    begin
-      if MsgBox('A newer Revision of ' + DynamoRevitRegistry.productName + ' is already installed.'
-                + + #13#10#13#10 + 'Do you wish to uninstall it?', mbInformation, MB_YESNO) = IDNO then
-        UninstallDynamoRevit := True;
-    end;
-  end
+      result := False;
+      Exit;
+  end;
   
-  // This section will be deleted before release.
+  { This section will be deleted before release. }
   // Check for Old Dynamo Revit
   // Check UpgradeCode for Old Dynamo Revit with the same Dynamo Core UpgradeCode.   
-  sReverseDynamoRevitProductCode := ReverseGuid('{#DynamoCoreUpgradeCode}');
-  sUpgradeKey := ExpandConstant('SOFTWARE\Microsoft\Windows\CurrentVersion\Installer\UpgradeCodes\' + sReverseDynamoRevitProductCode);
-  if(RegQueryStringValue(HKLM64, sUpgradeKey, sReverseDynamoRevitProductCode, sTemp)) then
+  if ((not UninstallDynamoRevit) and (DynamoRevitRegistry.uninstallKey<>'')) then
   begin
-    MsgBox(dynamoRevitRegistry.productCode + ' found in ' + '{#DynamoCoreUpgradeCode}' + '.  This means Old Dynamo Revit with the old UpgradeCode is installed.' 
-       , mbInformation, MB_OK);
-    // Since Old Dynamo Revit found, uninstall it.
-    UninstallDynamoRevit := True;
+    sReverseDynamoRevitProductCode := ReverseGuid('{#DynamoCoreUpgradeCode}');
+    sUpgradeKey := ExpandConstant('SOFTWARE\Microsoft\Windows\CurrentVersion\Installer\UpgradeCodes\' + sReverseDynamoRevitProductCode);
+    if(RegQueryStringValue(HKLM64, sUpgradeKey, sReverseDynamoRevitProductCode, sTemp)) then
+    begin
+      MsgBox(dynamoRevitRegistry.productCode + ' found in ' + '{#DynamoCoreUpgradeCode}' 
+            + '.  This means Old Dynamo Revit with the old UpgradeCode is installed.' 
+            + #13#10#13#10 + 'The existing Dynamo Revit will be uninstalled.' 
+         , mbError, MB_OK);
+      // Since Old Dynamo Revit found, uninstall it.
+      UninstallDynamoRevit := True;
+    end;
   end;
 end;
 

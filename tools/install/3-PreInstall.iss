@@ -1,7 +1,6 @@
 { Function prototypes of helper methods. }
 procedure UninstallProduct(var productRegistry: TRegistry); forward;
 function InstallPath(productRegistry: TRegistry): String; forward;
-function CheckInstall(productRegistry: TRegistry): Boolean; forward;
 
 { Primary Method - Invoked immediately after user clicks install. }
 procedure CurStepChanged(CurStep: TSetupStep);
@@ -22,6 +21,9 @@ begin
     // (3) Obtain Install Path.
     // If already installed in a certain path, asks user if want to change to the specified path. 
     // If existing product is already going to be uninstalled ignore this check.
+    // By default install directory is WizardDirValue.
+    DynamoCoreDirectory := WizardDirValue;
+    DynamoRevitDirectory := WizardDirValue;
     if (InstallDynamoCore and (not UninstallDynamoCore)) then
       DynamoCoreDirectory := InstallPath(DynamoCoreRegistry);    
     if (InstallDynamoRevit and (not UninstallDynamoRevit)) then
@@ -44,20 +46,12 @@ end;
 { Based on the user's decision, }
 { uninstall previous installations if they are located in a different folder. }
 function InstallPath(productRegistry: TRegistry): String;
-var 
-  iBuildVersionPos: Integer;
-  iBuildVersion: Integer;
 begin
-
   // Default install location is the one specified by user in Wizard
   Result := WizardDirValue;
 
   if (productRegistry.installLocation<>'') then
   begin
-    // Need to check BUILD field of version number.
-    //if (productRegistry.buildVersion > StrToInt('{#Build}')) then
-    //  Exit;
-    
     if (productRegistry.parentInstallLocation<>WizardDirValue) then
     begin
       //  Ask the user a Yes/No question
@@ -70,34 +64,5 @@ begin
       else
         Result := productRegistry.parentInstallLocation;
     end;
-  end;
-end;
-
-{ Checks if the already installed product has the same product version but different revision. }
-{ Returns the ReinstallString stating if reinstallation is to happen or not. }
-function CheckInstall(productRegistry: TRegistry): Boolean;
-var
-  iCurrentRevision : Cardinal;
-begin
-  Result := true;
-  iCurrentRevision := StrToInt('{#Rev}');
-  if (productRegistry.version='{#Major}.{#Minor}.{#Build}') then
-  begin
-    if (productRegistry.revVersion<>iCurrentRevision) then
-    begin
-      if (productRegistry.revVersion>iCurrentRevision) then
-      begin
-        //  Ask the user a Yes/No question
-        //  If YES Uninstall existing product, else ABORT installation
-        if MsgBox(productRegistry.productName + ' with Revision ' + IntToStr(productRegistry.revVersion) + ' is already installed.' 
-                  + #13#10#13#10 + 'Do you want to reinstall with Revision {#Rev}?', 
-                  mbConfirmation, MB_YESNO) = IDYES then
-          UninstallProduct(productRegistry)
-        else
-          Result := false;
-      end
-      else
-        UninstallProduct(productRegistry);
-    end
   end;
 end;
