@@ -9,28 +9,23 @@ begin
   // Invoked at the beginning of the install phase
   if (CurStep=ssInstall) then
   begin
-    // Uninstalls the Dynamo created by old installer if found.
+    // (1) Uninstalls the Dynamo created by old installer if found.
     if (OldDynamoCoreRegistry.uninstallKey<>'') then
       UninstallProduct(OldDynamoCoreRegistry);
       
-    //  (1) Check if product(s) are already installed.  
-    //  (2) Check if there is same product version but different revision.
-    //      If the installed product(s) have the same product version (ie. MAJOR.MINOR.BUILD) but different revision,
-    //      asks user if they want to reinstall with the new revision.
-    //  (3) Obtain Install Path.
-    //      If already installed in a certain path, asks user if want to change to the specified path. 
-    if (DynamoCoreRegistry.uninstallKey<>'') then
-    begin
-      InstallDynamoCore := CheckInstall(DynamoCoreRegistry);
-      if (InstallDynamoCore) then
-        DynamoCoreDirectory := InstallPath(DynamoCoreRegistry);    
-    end;
-    if (DynamoRevitRegistry.uninstallKey<>'') then
-    begin
-      InstallDynamoRevit := CheckInstall(DynamoRevitRegistry);
-      if (InstallDynamoRevit) then
-        DynamoRevitDirectory := InstallPath(DynamoRevitRegistry);
-    end;
+    // (2) Uninstall Dynamo Core/Revit if flagged
+    if (UninstallDynamoCore) then
+      UninstallProduct(DynamoCoreRegistry);
+    if (UninstallDynamoRevit) then
+      UninstallProduct(DynamoRevitRegistry);
+
+    // (3) Obtain Install Path.
+    // If already installed in a certain path, asks user if want to change to the specified path. 
+    // If existing product is already going to be uninstalled ignore this check.
+    if (InstallDynamoCore and (not UninstallDynamoCore)) then
+      DynamoCoreDirectory := InstallPath(DynamoCoreRegistry);    
+    if (InstallDynamoRevit and (not UninstallDynamoRevit)) then
+      DynamoRevitDirectory := InstallPath(DynamoRevitRegistry);
   end;
 end;
 
@@ -60,8 +55,8 @@ begin
   if (productRegistry.installLocation<>'') then
   begin
     // Need to check BUILD field of version number.
-    if (productRegistry.buildVersion > StrToInt('{#Build}')) then
-      Exit;
+    //if (productRegistry.buildVersion > StrToInt('{#Build}')) then
+    //  Exit;
     
     if (productRegistry.parentInstallLocation<>WizardDirValue) then
     begin

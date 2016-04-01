@@ -111,8 +111,9 @@ var
   { Flags determining to install the product or not. }
   InstallDynamoCore     : Boolean;
   InstallDynamoRevit    : Boolean;
-  { Special flag to uninstall Old Dynamo Revit with old UpgradeCode}
+  { Flag to uninstall existing Dynamo Core/Revit }
   UninstallDynamoRevit  : Boolean;
+  UninstallDynamoCore   : Boolean;
   { Variables containing registry values of existing installed product. }
   DynamoCoreRegistry    : TRegistry;
   DynamoRevitRegistry   : TRegistry;
