@@ -11,6 +11,8 @@
 #define ProductVersion Str(Major) + "." + Str(Minor) + "." + Str(Build)
 #define FullVersion Str(Major) + "." + Str(Minor) + "." + Str(Build) + "." + Str(Rev)
 #define DynamoTools "..\..\..\Dynamo\tools"
+#define DynamoCoreUpgradeCode "{584B3E06-FE7A-4341-8C22-339B00ABD58A}"
+#define DynamoRevitUpgradeCode "{E1D2382A-7EFD-4844-9664-7D84DF316B62}"
 
 [Setup]
 AppName={#ProductName}

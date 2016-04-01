@@ -131,20 +131,20 @@ var
   sTemp : String;
 begin
   // UpgradeCode GUIDs currently in use
-  sDynamoCoreUpgradeCode := '{584B3E06-FE7A-4341-8C22-339B00ABD58A}';
-  sDynamoRevitUpgradeCode := '{E1D2382A-7EFD-4844-9664-7D84DF316B62}';
+  sDynamoCoreUpgradeCode := '{#DynamoCoreUpgradeCode}';
+  sDynamoRevitUpgradeCode := '{#DynamoRevitUpgradeCode}';
   
-  // Try get Upgrade Key for Dynamo Core
+  // Obtain the Reverse GUIDs
+  sReverseDynamoCoreProductCode := ReverseGuid(dynamoCoreRegistry.productCode);
+  sReverseDynamoRevitProductCode := ReverseGuid(dynamoRevitRegistry.productCode);
   sReverseDynamoCoreUpgradeCode := ReverseGuid(sDynamoCoreUpgradeCode);
+  sReverseDynamoRevitUpgradeCode := ReverseGuid(sDynamoRevitUpgradeCode);
+  
+  // Try get Upgrade Key for Dynamo Core  
   sUpgradeKey := ExpandConstant('SOFTWARE\Microsoft\Windows\CurrentVersion\Installer\UpgradeCodes\' + sReverseDynamoCoreUpgradeCode);
   if (RegKeyExists(HKLM64, sUpgradeKey)) then
   begin
     // Check UpgradeCode for Dynamo Core.
-    sReverseDynamoCoreProductCode := ReverseGuid(dynamoCoreRegistry.productCode);
-    //MsgBox(sReverseDynamoCoreProductCode + #13#10 
-    //     + sReverseDynamoCoreUpgradeCode + #13#10  
-    //     , mbInformation, MB_OK);
-
     if(RegQueryStringValue(HKLM64, sUpgradeKey, sReverseDynamoCoreProductCode, sTemp)) then
     begin
       MsgBox(dynamoCoreRegistry.productCode + ' found in ' + sDynamoCoreUpgradeCode + '.  This means Dynamo Core with the same UpgradeCode is installed.' 
@@ -154,11 +154,10 @@ begin
         InstallDynamoCore := false;
     end;
     
-    // Check UpgradeCode for Dynamo Revit if it equals to Dynamo Core UpgradeCode.
-    sReverseDynamoRevitProductCode := ReverseGuid(dynamoRevitRegistry.productCode);
+    // Check UpgradeCode for Old Dynamo Revit with the same Dynamo Core UpgradeCode.   
     if(RegQueryStringValue(HKLM64, sUpgradeKey, sReverseDynamoRevitProductCode, sTemp)) then
     begin
-      MsgBox(dynamoRevitRegistry.productCode + ' found in ' + sDynamoRevitUpgradeCode + '.  This means Old Dynamo Revit with the old UpgradeCode is installed.' 
+      MsgBox(dynamoRevitRegistry.productCode + ' found in ' + sDynamoCoreUpgradeCode + '.  This means Old Dynamo Revit with the old UpgradeCode is installed.' 
          , mbInformation, MB_OK);
       // Since Old Dynamo Revit found, uninstall it.
       UninstallDynamoRevit := True;
@@ -170,8 +169,7 @@ begin
        , mbInformation, MB_OK);
   end;
   
-  // Try get Upgrade Key for Dynamo Revit
-  sReverseDynamoRevitUpgradeCode := ReverseGuid(sDynamoRevitUpgradeCode);
+  // Try get Upgrade Key for Dynamo Revit  
   sUpgradeKey := ExpandConstant('SOFTWARE\Microsoft\Windows\CurrentVersion\Installer\UpgradeCodes\' + sReverseDynamoRevitUpgradeCode);
   if (RegKeyExists(HKLM64, sUpgradeKey)) then
   begin
@@ -246,5 +244,4 @@ begin
     Result := (ResultCode = 0)
   else
     MsgBox('RevitInstallDetective failed!' + #13#10 + SysErrorMessage(ResultCode), mbError, MB_OK);
-  Result := True;
 end;
