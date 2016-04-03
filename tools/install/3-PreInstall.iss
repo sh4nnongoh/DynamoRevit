@@ -10,13 +10,13 @@ begin
   begin
     // (1) Uninstalls the Dynamo created by old installer if found.
     if (OldDynamoCoreRegistry.uninstallKey<>'') then
-      UninstallProduct(OldDynamoCoreRegistry);
+      //UninstallProduct(OldDynamoCoreRegistry);
       
     // (2) Uninstall Dynamo Core/Revit if flagged
     if (UninstallDynamoCore) then
-      UninstallProduct(DynamoCoreRegistry);
+      //UninstallProduct(DynamoCoreRegistry);
     if (UninstallDynamoRevit) then
-      UninstallProduct(DynamoRevitRegistry);
+      //UninstallProduct(DynamoRevitRegistry);
 
     // (3) Obtain Install Path.
     // If already installed in a certain path, asks user if want to change to the specified path. 
@@ -25,9 +25,9 @@ begin
     DynamoCoreDirectory := WizardDirValue;
     DynamoRevitDirectory := WizardDirValue;
     if (InstallDynamoCore and (not UninstallDynamoCore)) then
-      DynamoCoreDirectory := InstallPath(DynamoCoreRegistry);    
+      //DynamoCoreDirectory := InstallPath(DynamoCoreRegistry);    
     if (InstallDynamoRevit and (not UninstallDynamoRevit)) then
-      DynamoRevitDirectory := InstallPath(DynamoRevitRegistry);
+     // DynamoRevitDirectory := InstallPath(DynamoRevitRegistry);
   end;
 end;
 

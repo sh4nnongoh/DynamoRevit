@@ -23,8 +23,8 @@ begin
   if not (RevitInstallationExists('Revit2017') or RevitInstallationExists('Revit2016') or RevitInstallationExists('Revit2015')) then
   begin
 	MsgBox('Dynamo requires an installation of Revit 2015 or Revit 2016 or Revit 2017 in order to proceed!', mbCriticalError, MB_OK);
-    result := False;
-    Exit;
+    result := True;
+    //Exit;
   end;
 
   // Get Registry values of existing related products.
@@ -48,7 +48,7 @@ begin
   // (2) Newer Dynamo Revit installed. InstallDynamoRevit := False;
   // (3) Dynamo Core with same product version already installed. UninstallDynamoCore := True;
   // (4) Dynamo Revit with same product version already installed. UninstallDynamoRevit := True;
-  CheckUpgradeCodes(DynamoCoreRegistry, DynamoRevitRegistry);
+  //CheckUpgradeCodes(DynamoCoreRegistry, DynamoRevitRegistry);
   
   // Let user know of newer versions already installed.
   if ((InstallDynamoCore=False) and (InstallDynamoRevit=False)) then
