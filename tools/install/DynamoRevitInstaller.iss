@@ -8,9 +8,6 @@
 #define ProductVersion Str(Major) + "." + Str(Minor) + "." + Str(Build)
 #define FullVersion Str(Major) + "." + Str(Minor) + "." + Str(Build) + "." + Str(Rev)
 #define DynamoTools "..\..\..\Dynamo\tools"
-; These values need to be the same as the ones specified in Wix
-#define DynamoCoreUpgradeCode "{584B3E06-FE7A-4341-8C22-339B00ABD58A}"
-#define DynamoRevitUpgradeCode "{E1D2382A-7EFD-4844-9664-7D84DF316B62}"
 
 [Setup]
 AppName={#ProductName}
@@ -42,12 +39,6 @@ Uninstallable = no
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
-
-[Components]
-Name: "DynamoCore"; Description: "Dynamo Core Functionality"; Types: full custom;
-Name: "DynamoForRevit2015"; Description: "Dynamo For Revit 2015"; Types: full custom;
-Name: "DynamoForRevit2016"; Description: "Dynamo For Revit 2016"; Types: full custom;
-Name: "DynamoForRevit2017"; Description: "Dynamo For Revit 2017"; Types: full custom;
 
 [Files]
 ;Needed before installation guaranteed to be complete
@@ -82,10 +73,21 @@ Filename: "msiexec.exe"; Parameters: "/i \
                                      SELECT_REVIT_2016=""{code:CheckRevit2016}"" \
                                      SELECT_REVIT_2017=""{code:CheckRevit2017}"" \
                                      ADSK_SETUP_EXE=""1"" \
-                                     /q"; \
+                                     /q "; \
                                      WorkingDir: {tmp}; \
                                      StatusMsg: Installing Dynamo Revit; \
                                      Check: CheckInstallDynamoRevit;
+
+[CustomMessages]
+ComponentsFormCaption =Select Components
+ComponentsFormDescription =Which components should be installed?
+ComponentsFormLabelCaption1 =Select the components you want to install; clear the components you do not want to install. Click Next when you are ready to continue.
+ComponentsFormCheckBoxCaption1 =Dynamo Core
+ComponentsFormCheckBoxCaption2 =Dynamo Revit 2015
+ComponentsFormCheckBoxCaption3 =Dynamo Revit 2016
+ComponentsFormCheckBoxCaption4 =Dynamo Revit 2017
+ComponentsFormCheckBoxCaption5 =Dynamo Training Files
+
 [Code]
 // GLOBAL VARIABLES ................................................................. //
 type
@@ -105,60 +107,67 @@ type
 end;
 
 var
-  { Variables containing install directory. }
+  // Variables containing install directory.
   DynamoCoreDirectory   : String;
   DynamoRevitDirectory  : String;
-  { Flags determining to install the product or not. }
+  // Flags determining to install the product or not.
   InstallDynamoCore     : Boolean;
   InstallDynamoRevit    : Boolean;
-  { Flags to uninstall existing Dynamo Core/Revit }
+  // Flags to uninstall existing Dynamo Core/Revit
   UninstallDynamoRevit  : Boolean;
   UninstallDynamoCore   : Boolean;
-  { Variables containing registry values of existing installed product. }
+  // Variables containing registry values of existing installed product.
   DynamoCoreRegistry    : TRegistry;
   DynamoRevitRegistry   : TRegistry;
   OldDynamoCoreRegistry : TRegistry;
 
-{ VARIOUS INSTALL STAGES }
+// VARIOUS INSTALL STAGES
 #include "1-InitializeSetup.iss"
 #include "2-ComponentSelection.iss"
 #include "3-PreInstall.iss"
 
-{ SCRIPTED CONSTANTS & CHECK FUNCTIONS }
-{ These functions are called from the [Run] section of the script. }
+/// SCRIPTED CONSTANTS & CHECK FUNCTIONS
+/// These functions are called from the [Run] section of the script.
 function CheckRevit2015(Value: string): String;
 begin
   Result := '0';
-  if (WizardForm.ComponentsList.Checked[1]) then
+  if (DynamoRevit2015CheckBox.Checked) then
     Result := '1';
+  Log('CheckRevit2015 = ' + Result);
 end;
 function CheckRevit2016(Value: string): String;
 begin
   Result := '0';
-  if (WizardForm.ComponentsList.Checked[2]) then
+  if (DynamoRevit2016CheckBox.Checked) then
     Result := '1';
+  Log('CheckRevit2016 = ' + Result);
 end;
 function CheckRevit2017(Value: string): String;
 begin
   Result := '0';
-  if (WizardForm.ComponentsList.Checked[3]) then
+  if (DynamoRevit2017CheckBox.Checked) then
     Result := '1';
+  Log('CheckRevit2017 = ' + Result);
 end;
 
 function DynamoCoreInstallPath(Value: string): String;
 begin
   Result := DynamoCoreDirectory;
+  Log('DynamoCoreInstallPath = ' + Result);
 end;
 function DynamoRevitInstallPath(Value: string): String;
 begin
   Result := DynamoRevitDirectory;
+  Log('DynamoRevitInstallPath = ' + Result);
 end;
 
 function CheckInstallDynamoCore: Boolean;
 begin
   Result := InstallDynamoCore;
+  Log('CheckInstallDynamoCore = ' + IntToStr(Integer(Result)));
 end;
 function CheckInstallDynamoRevit: Boolean;
 begin
   Result := InstallDynamoRevit;
+  Log('CheckInstallDynamoRevit = ' + IntToStr(Integer(Result)));
 end;

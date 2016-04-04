@@ -1,33 +1,40 @@
-{ Function prototypes of helper methods. }
+/// Function prototypes of helper methods.
 function RevitInstallationExists(Version: String): Boolean; forward;
 procedure GetRegistryValues(var productRegistry : TRegistry); forward;
+function CompareNewer(product : TRegistry) : Boolean; forward;
+function CompareSame(product : TRegistry) : Boolean; forward;
+procedure CompareRevision(); forward;
+function RevisionReinstall(): Boolean; forward;
+function NewerVersionsExist(): Boolean; forward;
 function ReverseGuid(sGuid : String): String; forward;
-procedure CheckUpgradeCodes(dynamoCoreRegistry : TRegistry; dynamoRevitRegistry : TRegistry); forward;
-function NewerVersionExist(product : TRegistry) : Boolean; forward;
-function SameVersionExist(product : TRegistry) : Boolean; forward;
 
-{ Primary Method - Invoked immediately after EXE is run. }
+/// Primary Method - Invoked immediately after EXE is run.
 function InitializeSetup(): Boolean;
 var
   sUpgradeKey                     : String;
   sReverseDynamoRevitProductCode  : String;
   sTemp                           : String;
 begin
-  result := True
+  Log('[INITIALIZE SETUP PHASE]');
+  // By Default, initilize setup.
+  Result := True
   
+  // (1) Check for Revit Installation.
   // To check for a revit installation 
   ExtractTemporaryFile('RevitInstallDetective.exe');
   ExtractTemporaryFile('RevitAddinUtility.dll');
-  
   // Check if there is a valid revit installation on this machine, if not - fail
   if not (RevitInstallationExists('Revit2017') or RevitInstallationExists('Revit2016') or RevitInstallationExists('Revit2015')) then
   begin
 	MsgBox('Dynamo requires an installation of Revit 2015 or Revit 2016 or Revit 2017 in order to proceed!', mbCriticalError, MB_OK);
-    result := False;
+    Result := False;
+    Log('Error: Revit not installed.');
+    Log('InitializeSetup = ' + IntToStr(Integer(Result)));
     Exit;
   end;
 
-  // Get Registry values of existing related products.
+  // (2) Get Registry values of existing related products.
+  Log('(Obtaining the registry of existing products)');
   DynamoCoreRegistry.productName := '{#CoreProductName} {#Major}.{#Minor}';
   GetRegistryValues(DynamoCoreRegistry);
   DynamoRevitRegistry.productName := '{#ProductName} {#Major}.{#Minor}';
@@ -35,94 +42,161 @@ begin
   OldDynamoCoreRegistry.productName := 'Dynamo {#Major}.{#Minor}';
   GetRegistryValues(OldDynamoCoreRegistry);
   
+  // (3) Set Global Flags to default values.
   // By default install both DynamoCore and DynamoRevit
   InstallDynamoCore := True;
   InstallDynamoRevit := True;
-  
   // If Old Dynamo Revit with wrong UpgradeCode is installed, it will be set to True.
   // If Dynamo Core/Revit already installed with same product version, it will be set to True.
   UninstallDynamoRevit := False;
   UninstallDynamoCore := False;
   
-  // (1) Newer Dynamo Core installed. InstallDynamoCore := False;
-  // (2) Newer Dynamo Revit installed. InstallDynamoRevit := False;
-  // (3) Dynamo Core with same product version already installed. UninstallDynamoCore := True;
-  // (4) Dynamo Revit with same product version already installed. UninstallDynamoRevit := True;
-  CheckUpgradeCodes(DynamoCoreRegistry, DynamoRevitRegistry);
+  Log('(Default Flag values)');
+  Log('InstallDynamoCore = ' + IntToStr(Integer(InstallDynamoCore)));
+  Log('InstallDynamoRevit = ' + IntToStr(Integer(InstallDynamoRevit)));
+  Log('UninstallDynamoRevit = ' + IntToStr(Integer(UninstallDynamoRevit)));
+  Log('UninstallDynamoCore = ' + IntToStr(Integer(UninstallDynamoCore)));
   
-  // Let user know of newer versions already installed.
-  if ((InstallDynamoCore=False) and (InstallDynamoRevit=False)) then
+  // (4) Check for newer Build versions already installed.
+  // NewerVersionsExist() returns True only when both Dynamo Core and Dynamo Revit are of newer Version.
+  if ( NewerVersionsExist() ) then
   begin
-    MsgBox('Newer versions of Dynamo Core & Dynamo Revit already installed! Exiting Setup...', mbCriticalError, MB_OK);
-    result := False;
+    Result := False;
+    Log('InitializeSetup = ' + IntToStr(Integer(Result)));
     Exit;
-  end
-  else if (InstallDynamoCore=False) then
-  begin
-    MsgBox('Newer version of Dynamo Core already installed! It will not be installed.', mbInformation, MB_OK);
-  end
-  else if (InstallDynamoRevit=False) then
-  begin
-    MsgBox('Newer version of Dynamo Revit already installed! It will not be installed.', mbInformation, MB_OK);
-  end
-  
-  // Compare Revision field
-  // Double checks with user if want to uninstall or not if a higher revision is installed.
-  // sTemp will contain the Display String which will be displayed in the Popup box.
-  sTemp := '';
-  if ( ( UninstallDynamoCore and UninstallDynamoRevit )
-      and ( DynamoCoreRegistry.revVersion > StrToInt('{#Rev}') ) 
-      and ( DynamoRevitRegistry.revVersion > StrToInt('{#Rev}') )) then
-    sTemp := DynamoCoreRegistry.productName + ' & ' + DynamoRevitRegistry.productName
-  else if ( UninstallDynamoCore
-          and ( DynamoCoreRegistry.revVersion > StrToInt('{#Rev}') )) then
-    sTemp := DynamoCoreRegistry.productName
-  else if ( UninstallDynamoRevit
-          and ( DynamoRevitRegistry.revVersion > StrToInt('{#Rev}') )) then
-    sTemp := DynamoRevitRegistry.productName;
-    
-  // As long as user clicks no, Setup will end.
-  if ( ( sTemp <> '' )
-      and ( MsgBox('A newer Revision of ' + sTemp + ' is already installed.'
-              + #13#10#13#10 + 'Do you wish to uninstall it?'
-              + #13#10#13#10 + 'Choosing "No" will end the setup.'
-              , mbError, MB_YESNO) = IDNO )) then
-  begin
-      result := False;
-      Exit;
   end;
   
-  { This section will be deleted before release. }
-  // Check for Old Dynamo Revit
+  // (5) Compare Revision field
+  // (5a) Checks if same version already installed. Uninstall flag will be set if exisiting Revision is higher.
+  // (5b) Double checks with user if want to uninstall if a higher revision is already installed.
+  CompareRevision();
+  if ( not RevisionReinstall() ) then
+  begin
+    Result := False;
+    Log('InitializeSetup = ' + IntToStr(Integer(Result)));
+    Exit;
+  end;
+
+  // This section will be deleted before release. 
+  // (6) Check for Old Dynamo Revit
   // Check UpgradeCode for Old Dynamo Revit with the same Dynamo Core UpgradeCode.   
   if ((not UninstallDynamoRevit) and (DynamoRevitRegistry.uninstallKey<>'')) then
   begin
-    sReverseDynamoRevitProductCode := ReverseGuid('{#DynamoCoreUpgradeCode}');
+    sReverseDynamoRevitProductCode := ReverseGuid('{584B3E06-FE7A-4341-8C22-339B00ABD58A}');
     sUpgradeKey := ExpandConstant('SOFTWARE\Microsoft\Windows\CurrentVersion\Installer\UpgradeCodes\' + sReverseDynamoRevitProductCode);
     if(RegQueryStringValue(HKLM64, sUpgradeKey, sReverseDynamoRevitProductCode, sTemp)) then
     begin
-      MsgBox(dynamoRevitRegistry.productCode + ' found in ' + '{#DynamoCoreUpgradeCode}' 
-            + '.  This means Old Dynamo Revit with the old UpgradeCode is installed.' 
-            + #13#10#13#10 + 'The existing Dynamo Revit will be uninstalled.' 
-         , mbError, MB_OK);
       // Since Old Dynamo Revit found, uninstall it.
       UninstallDynamoRevit := True;
+      Log('Old Dynamo Revit found.');
+      Log('UninstallDynamoRevit = ' + IntToStr(Integer(UninstallDynamoRevit)));
+    end;
+  end;
+  
+  Log('InitializeSetup = ' + IntToStr(Integer(Result)));
+end;
+
+/// Checks if same version already installed. Uninstall flag will be set if exisiting Revision is higher.
+procedure CompareRevision();
+begin
+  Log('(Check for same version)');
+  if (CompareSame(DynamoCoreRegistry)) then
+  begin
+    if ( DynamoCoreRegistry.revVersion > StrToInt('{#Rev}') ) then
+    begin
+      UninstallDynamoCore := True;
+      Log('UninstallDynamoCore = ' + IntToStr(Integer(UninstallDynamoCore)));
+    end;
+  end;
+  if (CompareSame(DynamoRevitRegistry)) then
+  begin
+    if ( DynamoRevitRegistry.revVersion > StrToInt('{#Rev}') ) then
+    begin
+      UninstallDynamoRevit := True;
+      Log('UninstallDynamoRevit = ' + IntToStr(Integer(UninstallDynamoRevit)));
     end;
   end;
 end;
 
-{ Procedure to obtain registry values of the specified product type. }
-{ The var keyword means that the parameter is passed by reference. }
-{ http://wiki.freepascal.org/Variable_parameter }
+/// Double checks with user if want to uninstall if a higher revision is already installed.
+function RevisionReinstall(): Boolean;
+var
+  sTemp : String;
+begin
+
+  Result := True;
+  if ((DynamoCoreRegistry.uninstallKey='') and (DynamoRevitRegistry.uninstallKey='')) then
+    Exit;
+
+  // sTemp will contain the Display String which will be displayed in the Popup box.
+  sTemp := '';
+  if  ( UninstallDynamoCore and UninstallDynamoRevit ) then
+    sTemp := DynamoCoreRegistry.productName + ' & ' + DynamoRevitRegistry.productName
+  else if ( UninstallDynamoCore ) then
+    sTemp := DynamoCoreRegistry.productName
+  else if ( UninstallDynamoRevit ) then
+    sTemp := DynamoRevitRegistry.productName;
+    
+  // As long as user clicks no, Setup will end.
+  if (( sTemp <> '' )
+    and ( MsgBox('A newer Revision of ' + sTemp + ' is already installed.'
+            + #13#10#13#10 + 'Do you wish to uninstall it?'
+            + #13#10#13#10 + 'Choosing "No" will end the setup.'
+            , mbError, MB_YESNO) = IDNO )) then
+      Result := False;    
+end;
+
+/// Check for newer Build versions already installed.
+function NewerVersionsExist(): Boolean;
+begin
+
+  Result := False;
+  if ((DynamoCoreRegistry.uninstallKey='') and (DynamoRevitRegistry.uninstallKey='')) then
+    Exit;
+    
+  // Set flags. If newer version already installed, do not install product.
+  Log('(Check for newer versions)');
+  if (CompareNewer(DynamoCoreRegistry)) then
+  begin
+    InstallDynamoCore := False;
+    Log('InstallDynamoCore = ' + IntToStr(Integer(InstallDynamoCore)));
+  end;
+  if (CompareNewer(DynamoRevitRegistry)) then
+  begin
+    InstallDynamoRevit := False;
+    Log('InstallDynamoRevit = ' + IntToStr(Integer(InstallDynamoRevit)));
+  end;
+  
+  // Inform User.
+  if ((not InstallDynamoCore) and (not InstallDynamoRevit)) then
+  begin
+    MsgBox('Newer versions of Dynamo Core & Dynamo Revit already installed! Exiting Setup...', mbCriticalError, MB_OK);
+    Result := True;
+    Exit;
+  end
+  else if (not InstallDynamoCore) then
+  begin
+    MsgBox('Newer version of Dynamo Core already installed! It will not be installed.', mbInformation, MB_OK);
+  end
+  else if (not InstallDynamoRevit) then
+  begin
+    MsgBox('Newer version of Dynamo Revit already installed! It will not be installed.', mbInformation, MB_OK);
+  end
+  
+end;
+
+/// Procedure to obtain registry values of the specified product type. 
+/// The var keyword means that the parameter is passed by reference. 
 procedure GetRegistryValues(var productRegistry : TRegistry);
 var
-  sTempVersion : String;
+  sTempVersion   : String;
   iTempPeriodPos : Integer;
 begin
   productRegistry.uninstallKey := ExpandConstant('Software\Microsoft\Windows\CurrentVersion\Uninstall\' + productRegistry.productName);
   if (NOT RegKeyExists(HKLM64, productRegistry.uninstallKey)) then
   begin
     productRegistry.uninstallKey := '';
+    Log( productRegistry.productName + ' not found in registry.');
     Exit;
   end;
   // Get Registry Values in UninstallKey
@@ -166,90 +240,49 @@ begin
   // Does not find Product Code for the Old Dynamo product 
   if (Pos('{',productRegistry.uninstallParam)<>0) then
     productRegistry.productCode := Copy(productRegistry.uninstallParam,Pos('{',productRegistry.uninstallParam),Pos('}',productRegistry.uninstallParam) - 1);
+
+  Log(productRegistry.productName + ' Uninstall Key = ' + productRegistry.uninstallKey);
+  Log(productRegistry.productName + ' Install Location = ' + productRegistry.installLocation);
+  Log(productRegistry.productName + ' Uninstall Parameters = ' + productRegistry.uninstallParam);
+  Log(productRegistry.productName + ' Uninstall String = ' + productRegistry.uninstallString);
+  Log(productRegistry.productName + ' Version = ' + productRegistry.version);
+  Log(productRegistry.productName + ' Revision = ' + IntToStr(productRegistry.revVersion));
 end;
 
-{ Inspects existing products' UpgradeCode }
-procedure CheckUpgradeCodes(dynamoCoreRegistry : TRegistry; dynamoRevitRegistry : TRegistry);
-var
-  sUpgradeKey : String;
-  sDynamoCoreUpgradeCode : String;
-  sDynamoRevitUpgradeCode : String;
-  sReverseDynamoCoreProductCode : String;
-  sReverseDynamoRevitProductCode : String;
-  sReverseDynamoCoreUpgradeCode : String;
-  sReverseDynamoRevitUpgradeCode : String;
-  sTemp : String;
+/// Compare Versions - Newer
+function CompareNewer(product : TRegistry) : Boolean;
 begin
-  // UpgradeCode GUIDs currently in use
-  sDynamoCoreUpgradeCode := '{#DynamoCoreUpgradeCode}';
-  sDynamoRevitUpgradeCode := '{#DynamoRevitUpgradeCode}';
-  
-  // Obtain the Reverse GUIDs
-  sReverseDynamoCoreProductCode := ReverseGuid(dynamoCoreRegistry.productCode);
-  sReverseDynamoRevitProductCode := ReverseGuid(dynamoRevitRegistry.productCode);
-  sReverseDynamoCoreUpgradeCode := ReverseGuid('{#DynamoCoreUpgradeCode}');
-  sReverseDynamoRevitUpgradeCode := ReverseGuid('{#DynamoRevitUpgradeCode}');
-  
-  // Try get Upgrade Key for Dynamo Core  
-  if (dynamoCoreRegistry.uninstallKey<>'') then
-  begin
-    sUpgradeKey := ExpandConstant('SOFTWARE\Microsoft\Windows\CurrentVersion\Installer\UpgradeCodes\' + sReverseDynamoCoreUpgradeCode);
-    if (RegKeyExists(HKLM64, sUpgradeKey)) then
-    begin
-      // Check UpgradeCode for Dynamo Core.
-      if(RegQueryStringValue(HKLM64, sUpgradeKey, sReverseDynamoCoreProductCode, sTemp)) then
-      begin
-        MsgBox(dynamoCoreRegistry.productCode + ' found in ' + '{#DynamoCoreUpgradeCode}' + '.  This means Dynamo Core with the same UpgradeCode is installed.' 
-           , mbInformation, MB_OK);
-        // Since UpgradeCode the same, compare versions.
-        if (NewerVersionExist(dynamoCoreRegistry)) then
-          InstallDynamoCore := False
-        else if (SameVersionExist(dynamoCoreRegistry)) then
-          UninstallDynamoCore := True;
-      end;
-      (*
-      // Check UpgradeCode for Old Dynamo Revit with the same Dynamo Core UpgradeCode.   
-      if(RegQueryStringValue(HKLM64, sUpgradeKey, sReverseDynamoRevitProductCode, sTemp)) then
-      begin
-        MsgBox(dynamoRevitRegistry.productCode + ' found in ' + '{#DynamoCoreUpgradeCode}' + '.  This means Old Dynamo Revit with the old UpgradeCode is installed.' 
-           , mbInformation, MB_OK);
-        // Since Old Dynamo Revit found, uninstall it.
-        UninstallDynamoRevit := True;
-      end;*)
-    end
-    else
-    begin
-      MsgBox('{#DynamoCoreUpgradeCode}' + ' is not in use. This means Dynamo Core and Old Dynamo Revit is not installed.' 
-         , mbInformation, MB_OK);
-    end;
-  end;
-  
-  // Try get Upgrade Key for Dynamo Revit  
-  if (dynamoCoreRegistry.uninstallKey<>'') then
-  begin
-    sUpgradeKey := ExpandConstant('SOFTWARE\Microsoft\Windows\CurrentVersion\Installer\UpgradeCodes\' + sReverseDynamoRevitUpgradeCode);
-    if (RegKeyExists(HKLM64, sUpgradeKey)) then
-    begin
-      if(RegQueryStringValue(HKLM64, sUpgradeKey, sReverseDynamoRevitProductCode, sTemp)) then
-      begin
-        MsgBox(dynamoRevitRegistry.productCode + ' found in ' + '{#DynamoRevitUpgradeCode}' + '.  This means Dynamo Revit with the same UpgradeCode is installed.' 
-           , mbInformation, MB_OK);
-        // Since UpgradeCode the same, compare versions.
-        if (NewerVersionExist(dynamoRevitRegistry)) then
-          InstallDynamoRevit := False
-        else if (SameVersionExist(dynamoRevitRegistry)) then
-          UninstallDynamoRevit := True;
-      end;
-    end
-    else
-    begin
-      MsgBox('{#DynamoRevitUpgradeCode}' + ' is not in use. This means Dynamo Revit is not installed.' 
-         , mbInformation, MB_OK);
-    end;
-  end;
+  Result := False;
+  if ( (product.uninstallKey <> '')
+    and (product.majorVersion = StrToInt('{#Major}')) 
+    and (product.minorVersion = StrToInt('{#Minor}')) 
+    and (product.buildVersion > StrToInt('{#Build}'))) then
+    Result := True;
 end;
 
-{ Reverses the specified GUID based on the registry pattern }
+/// Compare Versions - Same
+function CompareSame(product : TRegistry) : Boolean;
+begin
+  Result := False;
+  if ( (product.uninstallKey <> '')
+    and ( product.majorVersion = StrToInt('{#Major}') ) 
+    and ( product.minorVersion = StrToInt('{#Minor}') ) 
+    and ( product.buildVersion = StrToInt('{#Build}') )) then
+    Result := True;
+end;
+
+/// Checks if Revit is installed in system.
+function RevitInstallationExists(Version: String): Boolean;
+var 
+  ResultCode: Integer;
+begin
+  if Exec(ExpandConstant('{tmp}\RevitInstallDetective.exe'), Version, '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
+    Result := (ResultCode = 0)
+  else
+    MsgBox('RevitInstallDetective failed!' + #13#10 + SysErrorMessage(ResultCode), mbError, MB_OK);
+end;
+
+/// Reverses the specified GUID based on the registry pattern
 function ReverseGuid(sGuid : String): String;
 var
   i,j,base : Integer;
@@ -258,12 +291,12 @@ var
 begin
   if (sGuid='') then
     Exit;
-  { Remove '-' }
+  // Remove '-' 
   StringChangeEx(sGuid, '-', '', True);
-  { Remove Brackets }
+  // Remove Brackets 
   sGuid := Copy(sGuid,2,32);
-  { GUID Reversal Pattern: 8, 4, 4, 2, 2, 2, 2, 2, 2, 2, 2 }
-  //http://stackoverflow.com/questions/17936064/how-can-i-find-the-upgrade-code-for-an-installed-application-in-c
+  // GUID Reversal Pattern: 8, 4, 4, 2, 2, 2, 2, 2, 2, 2, 2 
+  // http://stackoverflow.com/questions/17936064/how-can-i-find-the-upgrade-code-for-an-installed-application-in-c
   aReversePattern[1] := 8;
   aReversePattern[2] := 4;
   aReversePattern[3] := 4;
@@ -275,7 +308,7 @@ begin
   aReversePattern[9] := 2;
   aReversePattern[10] := 2;
   aReversePattern[11] := 2;
-  { Reverse GUID }
+  // Reverse GUID 
   sTempReverseGuid := StringOfChar(' ',32);
   base := 0;
   for i := 1 to 11 do
@@ -285,35 +318,4 @@ begin
     base := base + aReversePattern[i];
   end;    
   Result := sTempReverseGuid;
-end;
-
-{ Compare Versions - Newer }
-function NewerVersionExist(product : TRegistry) : Boolean;
-begin
-  Result := False;
-  if ( (product.majorVersion > StrToInt('{#Major}')) 
-    or ((product.majorVersion = StrToInt('{#Major}')) and (product.minorVersion > StrToInt('{#Minor}')))
-    or ((product.minorVersion = StrToInt('{#Minor}')) and (product.buildVersion > StrToInt('{#Build}'))) ) then
-    Result := True;
-end;
-
-{ Compare Versions - Same }
-function SameVersionExist(product : TRegistry) : Boolean;
-begin
-  Result := False;
-  if (( product.majorVersion = StrToInt('{#Major}') ) 
-    and ( product.minorVersion = StrToInt('{#Minor}') ) 
-    and ( product.buildVersion = StrToInt('{#Build}') )) then
-    Result := True;
-end;
-
-{ Checks if Revit is installed in system. }
-function RevitInstallationExists(Version: String): Boolean;
-var 
-  ResultCode: Integer;
-begin
-  if Exec(ExpandConstant('{tmp}\RevitInstallDetective.exe'), Version, '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
-    Result := (ResultCode = 0)
-  else
-    MsgBox('RevitInstallDetective failed!' + #13#10 + SysErrorMessage(ResultCode), mbError, MB_OK);
 end;

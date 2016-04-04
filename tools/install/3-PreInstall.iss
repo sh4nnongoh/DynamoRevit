@@ -8,6 +8,8 @@ begin
   // Invoked at the beginning of the install phase
   if (CurStep=ssInstall) then
   begin
+    Log('[PRE-INSTALL PHASE]');
+    
     // (1) Uninstalls the Dynamo created by old installer if found.
     if (OldDynamoCoreRegistry.uninstallKey<>'') then
       UninstallProduct(OldDynamoCoreRegistry);
@@ -24,10 +26,16 @@ begin
     // By default install directory is WizardDirValue.
     DynamoCoreDirectory := WizardDirValue;
     DynamoRevitDirectory := WizardDirValue;
+    Log('(Initial install directory)');
+    Log('DynamoCoreDirectory = ' + DynamoCoreDirectory);
+    Log('DynamoRevitDirectory = ' + DynamoRevitDirectory);
     if (InstallDynamoCore and (not UninstallDynamoCore)) then
       DynamoCoreDirectory := InstallPath(DynamoCoreRegistry);    
     if (InstallDynamoRevit and (not UninstallDynamoRevit)) then
       DynamoRevitDirectory := InstallPath(DynamoRevitRegistry);
+    Log('(Final install directory)');
+    Log('DynamoCoreDirectory = ' + DynamoCoreDirectory);
+    Log('DynamoRevitDirectory = ' + DynamoRevitDirectory);
   end;
 end;
 
@@ -38,6 +46,7 @@ procedure UninstallProduct(var productRegistry: TRegistry);
 var 
   iResultCode: Integer;
 begin
+  Log('Uninstalling ' + productRegistry.productName);
   Exec(productRegistry.uninstallString, productRegistry.uninstallParam, '', SW_HIDE, ewWaitUntilTerminated, iResultCode);	
   // Set uninstallPath to empty string to state the product is uninstalled.
   productRegistry.uninstallKey := '';
