@@ -53,6 +53,7 @@
     <Property Id="SELECT_REVIT_2015"/>
     <Property Id="SELECT_REVIT_2016"/>
     <Property Id="SELECT_REVIT_2017"/>
+    <Property Id="SELECT_SAMPLES"/>
 
     <Property Id="INSTALLDIR"/>
     <CustomAction Id="DIRCA_DEFAULT_INSTALLDIR" Property="DYNAMO_REVIT_INSTALLDIR" Value="[ProgramFiles64Folder][Manufacturer]\$(var.ProductName)\$(var.Major).$(var.Minor)" Execute="immediate" />
@@ -91,29 +92,29 @@
       <Feature Id="DYNAMO_REVIT_2015" Title="Dynamo Revit 2015" Level="0" >
         <ComponentGroupRef Id="REVIT_2015"/>
         <Condition Level="1">
-          (SELECT_REVIT_2015="" AND SELECT_REVIT_2016="" AND SELECT_REVIT_2017="")
-          OR SELECT_REVIT_2015=1
+          SELECT_REVIT_2015=1
         </Condition>
       </Feature>
 
       <Feature Id="DYNAMO_REVIT_2016" Title="Dynamo Revit 2016" Level="0" >
         <ComponentGroupRef Id="REVIT_2016"/>
         <Condition Level="1">
-          (SELECT_REVIT_2015="" AND SELECT_REVIT_2016="" AND SELECT_REVIT_2017="")
-          OR SELECT_REVIT_2016=1
+          SELECT_REVIT_2016=1
         </Condition>
       </Feature>
 
       <Feature Id="DYNAMO_REVIT_2017" Title="Dynamo Revit 2017" Level="0" >
         <ComponentGroupRef Id="REVIT_2017"/>
         <Condition Level="1">
-          (SELECT_REVIT_2015="" AND SELECT_REVIT_2016="" AND SELECT_REVIT_2017="")
-          OR SELECT_REVIT_2017=1
+          SELECT_REVIT_2017=1
         </Condition>
       </Feature>
 
-      <Feature Id="DYNAMO_REVIT_SAMPLES" Title="Sample Content" Level="1" >
+      <Feature Id="DYNAMO_REVIT_SAMPLES" Title="Sample Content" Level="0" >
         <ComponentGroupRef Id="SAMPLES"/>
+        <Condition Level="1">
+          SELECT_SAMPLES=1
+        </Condition>
       </Feature>
 
       <!--MergeRef Id="Setup"/> 

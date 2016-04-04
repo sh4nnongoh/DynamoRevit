@@ -3,7 +3,7 @@ function RevitInstallationExists(Version: String): Boolean; forward;
 procedure GetRegistryValues(var productRegistry : TRegistry); forward;
 function CompareNewer(product : TRegistry) : Boolean; forward;
 function CompareSame(product : TRegistry) : Boolean; forward;
-procedure CompareRevision(); forward;
+function SameVersionExist(): Boolean; forward;
 function UninstallCurrentRevision(): Boolean; forward;
 function NewerVersionsExist(): Boolean; forward;
 function ReverseGuid(sGuid : String): String; forward;
@@ -24,6 +24,7 @@ begin
   ExtractTemporaryFile('RevitInstallDetective.exe');
   ExtractTemporaryFile('RevitAddinUtility.dll');
   // Check if there is a valid revit installation on this machine, if not - fail
+  (*
   if not (RevitInstallationExists('Revit2017') or RevitInstallationExists('Revit2016') or RevitInstallationExists('Revit2015')) then
   begin
 	MsgBox('Dynamo requires an installation of Revit 2015 or Revit 2016 or Revit 2017 in order to proceed!', mbCriticalError, MB_OK);
@@ -32,7 +33,8 @@ begin
     Log('InitializeSetup = ' + IntToStr(Integer(Result)));
     Exit;
   end;
-
+  *)
+  
   // (2) Get Registry values of existing related products.
   Log('(Obtaining the registry of existing products)');
   DynamoCoreRegistry.productName := '{#CoreProductName} {#Major}.{#Minor}';
@@ -69,7 +71,6 @@ begin
   // (5) Compare Revision field
   // (5a) Checks if same version already installed. Uninstall flag will be set if found.
   // (5b) Double checks with user if want to uninstall if a higher revision is already installed.
-  SameVersion();
   if ( (SameVersionExist()) and (not UninstallCurrentRevision()) ) then
   begin
     Result := False;

@@ -54,16 +54,17 @@ Source: "{#DynamoTools}\install\Extra\IronPython-2.7.3.msi"; DestDir: {tmp}; Fla
 
 [Run]
 Filename: "msiexec.exe"; Parameters: "/i ""{tmp}\IronPython-2.7.3.msi"" /qn"; WorkingDir: {tmp};
-Filename: "{tmp}\DirectX\dxsetup.exe"; Parameters: "/silent"
+Filename: "{tmp}\DirectX\dxsetup.exe"; Parameters: "/silent"; WorkingDir: {tmp};
 ; Install Dynamo Core
 Filename: "msiexec.exe"; Parameters: "/i \
                                      ""{tmp}\DynamoCore.msi"" \
                                      /l* DynamoCore.log \
                                      INSTALLDIR=""{code:DynamoCoreInstallPath}"" \
                                      /q"; \
-                                     WorkingDir: {tmp}; \
-                                     StatusMsg: Installing Dynamo Core; \
-                                     Check: CheckInstallDynamoCore;
+                         WorkingDir: {tmp}; \
+                         StatusMsg: Installing Dynamo Core; \
+                         Check: CheckInstallDynamoCore;
+
 ; Install Dynamo Revit
 Filename: "msiexec.exe"; Parameters: "/i \
                                      ""{tmp}\DynamoRevit.msi"" \
@@ -72,11 +73,16 @@ Filename: "msiexec.exe"; Parameters: "/i \
                                      SELECT_REVIT_2015=""{code:CheckRevit2015}"" \
                                      SELECT_REVIT_2016=""{code:CheckRevit2016}"" \
                                      SELECT_REVIT_2017=""{code:CheckRevit2017}"" \
+                                     SELECT_SAMPLES=""{code:CheckSamples}"" \
                                      ADSK_SETUP_EXE=""1"" \
-                                     /q "; \
-                                     WorkingDir: {tmp}; \
-                                     StatusMsg: Installing Dynamo Revit; \
-                                     Check: CheckInstallDynamoRevit;
+                                     /q"; \
+                         WorkingDir: {tmp}; \
+                         StatusMsg: Installing Dynamo Revit; \
+                         Check: CheckInstallDynamoRevit;
+                         
+Filename: "{code:DynamoRevitInstallPath}\{#CoreProductName}\{#Major}.{#Minor}\README.txt"; \
+                         Flags: shellexec ; \
+                         Check: CheckReadMe;
 
 [CustomMessages]
 ComponentsFormCaption =Select Components
@@ -149,6 +155,13 @@ begin
     Result := '1';
   Log('CheckRevit2017 = ' + Result);
 end;
+function CheckSamples(Value: string): String;
+begin
+  Result := '0';
+  if (SamplesCheckBox.Checked) then
+    Result := '1';
+  Log('CheckSamples = ' + Result);
+end;
 
 function DynamoCoreInstallPath(Value: string): String;
 begin
@@ -170,4 +183,17 @@ function CheckInstallDynamoRevit: Boolean;
 begin
   Result := InstallDynamoRevit;
   Log('CheckInstallDynamoRevit = ' + IntToStr(Integer(Result)));
+end;
+
+function CheckReadMe: Boolean;
+begin
+  Result := False;
+  //if (WizardForm.ComponentsList.Checked[5]) then
+  //  Result := True;
+end;
+function CheckLaunchDynamo: Boolean;
+begin
+  Result := False;
+  //if (WizardForm.ComponentsList.Checked[6]) then
+   // Result := True;
 end;

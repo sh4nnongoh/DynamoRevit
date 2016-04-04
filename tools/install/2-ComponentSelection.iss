@@ -1,6 +1,7 @@
 var
   ComponentsFormID : Integer;
-  Label1: TLabel;
+  SelectComponentsInstruction: TLabel;
+  ComponentInformation: TLabel;
   DynamoCoreCheckBox: TNewCheckBox; 
   DynamoRevit2015CheckBox: TNewCheckBox; 
   DynamoRevit2016CheckBox: TNewCheckBox; 
@@ -17,8 +18,8 @@ begin
     CustomMessage('ComponentsFormDescription')
   );
  
-  Label1 := TLabel.Create(Page);
-  with Label1 do
+  SelectComponentsInstruction := TLabel.Create(Page);
+  with SelectComponentsInstruction do
   begin
     Parent := Page.Surface;
     Caption := CustomMessage('ComponentsFormLabelCaption1');
@@ -34,8 +35,8 @@ begin
   begin
     Parent := Page.Surface;
     Caption := CustomMessage('ComponentsFormCheckBoxCaption1');
-    Left := ScaleX(Label1.Left);
-    Top := ScaleY(Label1.Top + 45);
+    Left := SelectComponentsInstruction.Left;
+    Top := SelectComponentsInstruction.Top + ScaleY(45);
     Width := ScaleX(300);
     Height := ScaleY(17);
   end;
@@ -44,30 +45,30 @@ begin
   begin
     Parent := Page.Surface;
     Caption := CustomMessage('ComponentsFormCheckBoxCaption2');
-    Left := ScaleX(DynamoCoreCheckBox.Left);
-    Top := ScaleY(DynamoCoreCheckBox.Top + 20);
-    Width := ScaleX(DynamoCoreCheckBox.Width);
-    Height := ScaleY(DynamoCoreCheckBox.Height);
+    Left := DynamoCoreCheckBox.Left;
+    Top := DynamoCoreCheckBox.Top + ScaleY(20);
+    Width := DynamoCoreCheckBox.Width;
+    Height := DynamoCoreCheckBox.Height;
   end;
   DynamoRevit2016CheckBox := TNewCheckBox.Create(Page);
   with DynamoRevit2016CheckBox do
   begin
     Parent := Page.Surface;
     Caption := CustomMessage('ComponentsFormCheckBoxCaption3');
-    Left := ScaleX(DynamoCoreCheckBox.Left);
-    Top := ScaleY(DynamoRevit2015CheckBox.Top + 20);
-    Width := ScaleX(DynamoCoreCheckBox.Width);
-    Height := ScaleY(DynamoCoreCheckBox.Height);
+    Left := DynamoCoreCheckBox.Left;
+    Top := DynamoRevit2015CheckBox.Top + ScaleY(20);
+    Width := DynamoCoreCheckBox.Width;
+    Height := DynamoCoreCheckBox.Height;
   end;
   DynamoRevit2017CheckBox := TNewCheckBox.Create(Page);
   with DynamoRevit2017CheckBox do
   begin
     Parent := Page.Surface;
     Caption := CustomMessage('ComponentsFormCheckBoxCaption4');
-    Left := ScaleX(DynamoCoreCheckBox.Left);
-    Top := ScaleY(DynamoRevit2016CheckBox.Top + 20);
-    Width := ScaleX(DynamoCoreCheckBox.Width);
-    Height := ScaleY(DynamoCoreCheckBox.Height);
+    Left := DynamoCoreCheckBox.Left;
+    Top := DynamoRevit2016CheckBox.Top + ScaleY(20);
+    Width := DynamoCoreCheckBox.Width;
+    Height := DynamoCoreCheckBox.Height;
   end;
   
   SamplesCheckBox := TNewCheckBox.Create(Page);
@@ -75,13 +76,38 @@ begin
   begin
     Parent := Page.Surface;
     Caption := CustomMessage('ComponentsFormCheckBoxCaption5');
-    Left := ScaleX(DynamoCoreCheckBox.Left);
-    Top := ScaleY(DynamoRevit2017CheckBox.Top + 20);
-    Width := ScaleX(DynamoCoreCheckBox.Width);
-    Height := ScaleY(DynamoCoreCheckBox.Height);
+    Left := DynamoCoreCheckBox.Left;
+    Top := DynamoRevit2017CheckBox.Top + ScaleY(20);
+    Width := DynamoCoreCheckBox.Width;
+    Height := DynamoCoreCheckBox.Height;
+  end;
+  
+  ComponentInformation := TLabel.Create(Page);
+  with ComponentInformation do
+  begin
+    Parent := Page.Surface;  
+    if ( not InstallDynamoCore ) then
+      Caption := 'Dynamo Core will not be installed as there is already a newer version installed.'
+    else if ( not InstallDynamoRevit ) then
+      Caption := 'Dynamo Revit components will not be installed as there is already a newer version installed.';
+    WordWrap := True; 
+    Left := SelectComponentsInstruction.Left;
+    Top := ScaleY(170);
+    Width := SelectComponentsInstruction.Width;
+    Height := SelectComponentsInstruction.Height;
+    Font.Color := clRed;
   end;
   
   Result := Page.ID;
+  
+end;
+
+procedure ClickEvent(Sender : TObject);
+var
+ Msg : String;
+ I   : Integer;
+begin
+  
 end;
 
 procedure InitializeWizard();
@@ -103,6 +129,8 @@ begin
     DynamoRevit2016CheckBox.Enabled := True;
     DynamoRevit2017CheckBox.State := cbChecked;
     DynamoRevit2017CheckBox.Enabled := True;
+    SamplesCheckBox.State := cbChecked;
+    SamplesCheckBox.Enabled := True;
     
     // Checks
     if not InstallDynamoCore then
@@ -117,6 +145,8 @@ begin
       DynamoRevit2016CheckBox.Enabled := False;
       DynamoRevit2017CheckBox.State := cbUnchecked;
       DynamoRevit2017CheckBox.Enabled := False;
+      SamplesCheckBox.State := cbUnchecked;
+      SamplesCheckBox.Enabled := False;
     end
     else
     begin 
