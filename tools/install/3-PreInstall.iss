@@ -10,17 +10,27 @@ begin
   begin
     Log('[PRE-INSTALL PHASE]');
     
-    // (1) Uninstalls the Dynamo created by old installer if found.
+    // (1) Since none of the Dynamo Revit versions selected, do not install Dynamo Revit
+    if ( ( not DynamoRevit2015CheckBox.Checked )
+      and ( not DynamoRevit2016CheckBox.Checked )
+      and ( not DynamoRevit2017CheckBox.Checked ) ) then
+      InstallDynamoRevit := False;
+    
+    // (2) Final Check; If both Product are not to be isntalled, end the Setup.
+    if ( (not InstallDynamoCore) and (not InstallDynamoRevit) ) then
+      Exit;
+    
+    // (3) Uninstalls the Dynamo created by old installer if found.
     if (OldDynamoCoreRegistry.uninstallKey<>'') then
       UninstallProduct(OldDynamoCoreRegistry);
       
-    // (2) Uninstall Dynamo Core/Revit if flagged
+    // (4) Uninstall Dynamo Core/Revit if flagged
     if (UninstallDynamoCore) then
       UninstallProduct(DynamoCoreRegistry);
     if (UninstallDynamoRevit) then
       UninstallProduct(DynamoRevitRegistry);
 
-    // (3) Obtain Install Path.
+    // (5) Obtain Install Path.
     // If already installed in a certain path, asks user if want to change to the specified path. 
     // If existing product is already going to be uninstalled ignore this check.
     // By default install directory is WizardDirValue.
