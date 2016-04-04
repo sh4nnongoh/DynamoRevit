@@ -69,7 +69,7 @@ begin
     Width := ScaleX(DynamoCoreCheckBox.Width);
     Height := ScaleY(DynamoCoreCheckBox.Height);
   end;
-  (*
+  
   SamplesCheckBox := TNewCheckBox.Create(Page);
   with SamplesCheckBox do
   begin
@@ -80,7 +80,7 @@ begin
     Width := ScaleX(DynamoCoreCheckBox.Width);
     Height := ScaleY(DynamoCoreCheckBox.Height);
   end;
-  *)
+  
   Result := Page.ID;
 end;
 

@@ -1,8 +1,8 @@
-{ Function prototypes of helper methods. }
+// Function prototypes of helper methods.
 procedure UninstallProduct(var productRegistry: TRegistry); forward;
 function InstallPath(productRegistry: TRegistry): String; forward;
 
-{ Primary Method - Invoked immediately after user clicks install. }
+/// Primary Method - Invoked immediately after user clicks install.
 procedure CurStepChanged(CurStep: TSetupStep);
 begin
   // Invoked at the beginning of the install phase
@@ -39,9 +39,8 @@ begin
   end;
 end;
 
-{ Uninstalls a product based on the specified uninstall path. }
-{ The var keyword means that the parameter is passed by reference. }
-{ http://wiki.freepascal.org/Variable_parameter }
+/// Uninstalls a product based on the specified uninstall path.
+/// The var keyword means that the parameter is passed by reference.
 procedure UninstallProduct(var productRegistry: TRegistry);
 var 
   iResultCode: Integer;
@@ -52,8 +51,8 @@ begin
   productRegistry.uninstallKey := '';
 end;
 
-{ Based on the user's decision, }
-{ uninstall previous installations if they are located in a different folder. }
+/// Based on the user's decision, 
+/// uninstall previous installations if they are located in a different folder.
 function InstallPath(productRegistry: TRegistry): String;
 begin
   // Default install location is the one specified by user in Wizard

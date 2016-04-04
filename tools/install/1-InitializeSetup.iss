@@ -4,7 +4,7 @@ procedure GetRegistryValues(var productRegistry : TRegistry); forward;
 function CompareNewer(product : TRegistry) : Boolean; forward;
 function CompareSame(product : TRegistry) : Boolean; forward;
 procedure CompareRevision(); forward;
-function RevisionReinstall(): Boolean; forward;
+function UninstallCurrentRevision(): Boolean; forward;
 function NewerVersionsExist(): Boolean; forward;
 function ReverseGuid(sGuid : String): String; forward;
 
@@ -67,10 +67,10 @@ begin
   end;
   
   // (5) Compare Revision field
-  // (5a) Checks if same version already installed. Uninstall flag will be set if exisiting Revision is higher.
+  // (5a) Checks if same version already installed. Uninstall flag will be set if found.
   // (5b) Double checks with user if want to uninstall if a higher revision is already installed.
-  CompareRevision();
-  if ( not RevisionReinstall() ) then
+  SameVersion();
+  if ( (SameVersionExist()) and (not UninstallCurrentRevision()) ) then
   begin
     Result := False;
     Log('InitializeSetup = ' + IntToStr(Integer(Result)));
@@ -96,30 +96,27 @@ begin
   Log('InitializeSetup = ' + IntToStr(Integer(Result)));
 end;
 
-/// Checks if same version already installed. Uninstall flag will be set if exisiting Revision is higher.
-procedure CompareRevision();
+/// Checks if same version already installed. Uninstall flag will be set if found.
+function SameVersionExist(): Boolean;
 begin
+  Result := False;
   Log('(Check for same version)');
   if (CompareSame(DynamoCoreRegistry)) then
   begin
-    if ( DynamoCoreRegistry.revVersion > StrToInt('{#Rev}') ) then
-    begin
-      UninstallDynamoCore := True;
-      Log('UninstallDynamoCore = ' + IntToStr(Integer(UninstallDynamoCore)));
-    end;
+    UninstallDynamoCore := True;
+    Log('UninstallDynamoCore = ' + IntToStr(Integer(UninstallDynamoCore)));
+    Result := True;
   end;
   if (CompareSame(DynamoRevitRegistry)) then
   begin
-    if ( DynamoRevitRegistry.revVersion > StrToInt('{#Rev}') ) then
-    begin
-      UninstallDynamoRevit := True;
-      Log('UninstallDynamoRevit = ' + IntToStr(Integer(UninstallDynamoRevit)));
-    end;
+    UninstallDynamoRevit := True;
+    Log('UninstallDynamoRevit = ' + IntToStr(Integer(UninstallDynamoRevit)));
+    Result := True;
   end;
 end;
 
 /// Double checks with user if want to uninstall if a higher revision is already installed.
-function RevisionReinstall(): Boolean;
+function UninstallCurrentRevision(): Boolean;
 var
   sTemp : String;
 begin
@@ -130,11 +127,15 @@ begin
 
   // sTemp will contain the Display String which will be displayed in the Popup box.
   sTemp := '';
-  if  ( UninstallDynamoCore and UninstallDynamoRevit ) then
+  if (( UninstallDynamoCore and UninstallDynamoRevit )
+    and ( DynamoCoreRegistry.revVersion > StrToInt('{#Rev}') )
+    and ( DynamoRevitRegistry.revVersion > StrToInt('{#Rev}') )) then
     sTemp := DynamoCoreRegistry.productName + ' & ' + DynamoRevitRegistry.productName
-  else if ( UninstallDynamoCore ) then
+  else if (( UninstallDynamoCore )
+    and ( DynamoCoreRegistry.revVersion > StrToInt('{#Rev}') )) then
     sTemp := DynamoCoreRegistry.productName
-  else if ( UninstallDynamoRevit ) then
+  else if (( UninstallDynamoRevit )
+    and ( DynamoRevitRegistry.revVersion > StrToInt('{#Rev}') )) then
     sTemp := DynamoRevitRegistry.productName;
     
   // As long as user clicks no, Setup will end.
