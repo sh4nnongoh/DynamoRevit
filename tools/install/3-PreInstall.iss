@@ -16,7 +16,7 @@ begin
       and ( not DynamoRevit2017CheckBox.Checked ) ) then
       InstallDynamoRevit := False;
     
-    // (2) Final Check; If both Product are not to be isntalled, end the Setup.
+    // (2) Final Check; If both Product are not to be intalled, end the Setup.
     if ( (not InstallDynamoCore) and (not InstallDynamoRevit) ) then
       Exit;
     

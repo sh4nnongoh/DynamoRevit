@@ -24,7 +24,6 @@ begin
   ExtractTemporaryFile('RevitInstallDetective.exe');
   ExtractTemporaryFile('RevitAddinUtility.dll');
   // Check if there is a valid revit installation on this machine, if not - fail
-  (*
   if not (RevitInstallationExists('Revit2017') or RevitInstallationExists('Revit2016') or RevitInstallationExists('Revit2015')) then
   begin
 	MsgBox('Dynamo requires an installation of Revit 2015 or Revit 2016 or Revit 2017 in order to proceed!', mbCriticalError, MB_OK);
@@ -33,7 +32,6 @@ begin
     Log('InitializeSetup = ' + IntToStr(Integer(Result)));
     Exit;
   end;
-  *)
   
   // (2) Get Registry values of existing related products.
   Log('(Obtaining the registry of existing products)');
@@ -94,6 +92,7 @@ begin
     end;
   end;
   
+   
   Log('InitializeSetup = ' + IntToStr(Integer(Result)));
 end;
 
@@ -125,7 +124,7 @@ begin
   Result := True;
   if ((DynamoCoreRegistry.uninstallKey='') and (DynamoRevitRegistry.uninstallKey='')) then
     Exit;
-
+  Log('(Check Revision)');
   // sTemp will contain the Display String which will be displayed in the Popup box.
   sTemp := '';
   if (( UninstallDynamoCore and UninstallDynamoRevit )
@@ -282,6 +281,7 @@ begin
     Result := (ResultCode = 0)
   else
     MsgBox('RevitInstallDetective failed!' + #13#10 + SysErrorMessage(ResultCode), mbError, MB_OK);
+  result := True;
 end;
 
 /// Reverses the specified GUID based on the registry pattern

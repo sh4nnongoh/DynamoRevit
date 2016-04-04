@@ -1,12 +1,16 @@
-var
-  ComponentsFormID : Integer;
-  SelectComponentsInstruction: TLabel;
-  ComponentInformation: TLabel;
-  DynamoCoreCheckBox: TNewCheckBox; 
-  DynamoRevit2015CheckBox: TNewCheckBox; 
-  DynamoRevit2016CheckBox: TNewCheckBox; 
-  DynamoRevit2017CheckBox: TNewCheckBox; 
-  SamplesCheckBox: TNewCheckBox; 
+procedure ClickEvent(Sender : TObject);
+begin
+  // (1) Since none of the Dynamo Revit versions selected, do not install Dynamo Revit
+  if ( ( not DynamoRevit2015CheckBox.Checked )
+    and ( not DynamoRevit2016CheckBox.Checked )
+    and ( not DynamoRevit2017CheckBox.Checked ) ) then
+  begin
+    SamplesCheckBox.State := cbUnchecked;
+    SamplesCheckBox.Enabled := False;
+  end
+  else
+    SamplesCheckBox.Enabled := True;
+end;
 
 function ComponentsFormCreatePage(PreviousPageId: Integer): Integer;
 var
@@ -49,6 +53,7 @@ begin
     Top := DynamoCoreCheckBox.Top + ScaleY(20);
     Width := DynamoCoreCheckBox.Width;
     Height := DynamoCoreCheckBox.Height;
+    OnClick := @ClickEvent;
   end;
   DynamoRevit2016CheckBox := TNewCheckBox.Create(Page);
   with DynamoRevit2016CheckBox do
@@ -59,6 +64,7 @@ begin
     Top := DynamoRevit2015CheckBox.Top + ScaleY(20);
     Width := DynamoCoreCheckBox.Width;
     Height := DynamoCoreCheckBox.Height;
+    OnClick := @ClickEvent;
   end;
   DynamoRevit2017CheckBox := TNewCheckBox.Create(Page);
   with DynamoRevit2017CheckBox do
@@ -69,6 +75,7 @@ begin
     Top := DynamoRevit2016CheckBox.Top + ScaleY(20);
     Width := DynamoCoreCheckBox.Width;
     Height := DynamoCoreCheckBox.Height;
+    OnClick := @ClickEvent;
   end;
   
   SamplesCheckBox := TNewCheckBox.Create(Page);
@@ -102,14 +109,6 @@ begin
   
 end;
 
-procedure ClickEvent(Sender : TObject);
-var
- Msg : String;
- I   : Integer;
-begin
-  
-end;
-
 procedure InitializeWizard();
 begin
   ComponentsFormID := ComponentsFormCreatePage(wpSelectComponents);
@@ -119,8 +118,8 @@ end;
 procedure CurPageChanged(CurPageID: Integer);
 begin  
   if CurPageID = ComponentsFormID then
-  begin
-    // Default
+  begin   
+    // Set Component Page Defaults
     DynamoCoreCheckBox.State := cbChecked;
     DynamoCoreCheckBox.Enabled := False;
     DynamoRevit2015CheckBox.State := cbChecked;
@@ -131,7 +130,6 @@ begin
     DynamoRevit2017CheckBox.Enabled := True;
     SamplesCheckBox.State := cbChecked;
     SamplesCheckBox.Enabled := True;
-    
     // Checks
     if not InstallDynamoCore then
     begin

@@ -127,6 +127,16 @@ var
   DynamoRevitRegistry   : TRegistry;
   OldDynamoCoreRegistry : TRegistry;
 
+var
+  ComponentsFormID : Integer;
+  SelectComponentsInstruction: TLabel;
+  ComponentInformation: TLabel;
+  DynamoCoreCheckBox: TNewCheckBox; 
+  DynamoRevit2015CheckBox: TNewCheckBox; 
+  DynamoRevit2016CheckBox: TNewCheckBox; 
+  DynamoRevit2017CheckBox: TNewCheckBox; 
+  SamplesCheckBox: TNewCheckBox; 
+
 // VARIOUS INSTALL STAGES
 #include "1-InitializeSetup.iss"
 #include "2-ComponentSelection.iss"
