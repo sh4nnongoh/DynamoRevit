@@ -82,7 +82,7 @@ namespace Dynamo.Applications
             return installs.Cast<KeyValuePair<string, Tuple<int, int, int, int>>>()
                 .Where(p => p.Value.Item1 == version.Major && p.Value.Item2 == version.Minor)
                 .Select(p=>p.Key)
-                .FirstOrDefault();
+                .LastOrDefault();
         }
 
         /// <summary>
@@ -123,10 +123,13 @@ namespace Dynamo.Applications
 
             try
             {
+                if (false == TryResolveDynamoCore())
+                    return Result.Failed;
+
                 UIControlledApplication = application;
                 ControlledApplication = application.ControlledApplication;
 
-                SubscribeAssemblyResolvingEvent();
+                SubscribeAssemblyEvents();
                 SubscribeApplicationEvents();
 
                 TransactionManager.SetupManager(new AutomaticTransactionStrategy());
@@ -178,7 +181,7 @@ namespace Dynamo.Applications
 
         public Result OnShutdown(UIControlledApplication application)
         {
-            UnsubscribeAssemblyResolvingEvent();
+            UnsubscribeAssemblyEvents();
             UnsubscribeApplicationEvents();
             UnsubscribeDocumentChangedEvent();
             RevitServicesUpdater.DisposeInstance();
@@ -280,14 +283,16 @@ namespace Dynamo.Applications
             proxy = null;
         }
 
-        private void SubscribeAssemblyResolvingEvent()
+        private void SubscribeAssemblyEvents()
         {
             AppDomain.CurrentDomain.AssemblyResolve += ResolveAssembly;
         }
 
-        private void UnsubscribeAssemblyResolvingEvent()
+      
+        private void UnsubscribeAssemblyEvents()
         {
             AppDomain.CurrentDomain.AssemblyResolve -= ResolveAssembly;
+            //AppDomain.CurrentDomain.AssemblyLoad -= AssemblyLoad;
         }
 
         /// <summary>
@@ -332,7 +337,7 @@ namespace Dynamo.Applications
                 throw new Exception(string.Format("The location of the assembly, {0} could not be resolved for loading.", assemblyPath), ex);
             }
         }
-
+        
         private void SubscribeDocumentChangedEvent()
         {
             ControlledApplication.DocumentChanged += RevitServicesUpdater.Instance.ApplicationDocumentChanged;
@@ -347,6 +352,27 @@ namespace Dynamo.Applications
         {
             get { return DynamoButton.Enabled; }
             set { DynamoButton.Enabled = value; }
+        }
+
+        private bool TryResolveDynamoCore()
+        {
+            if (string.IsNullOrEmpty(DynamoCorePath))
+            {
+                var fvi = FileVersionInfo.GetVersionInfo(assemblyName);
+
+                if (MessageBoxResult.OK ==
+                    System.Windows.MessageBox.Show(
+                        string.Format(Resources.DynamoCoreNotFoundDialogMessage,
+                            fvi.FileMajorPart, fvi.FileMinorPart, fvi.FileBuildPart),
+                        Resources.DynamoCoreNotFoundDialogTitle,
+                        MessageBoxButton.OKCancel,
+                        MessageBoxImage.Error))
+                {
+                    System.Diagnostics.Process.Start("http://dynamobim.org/download/");
+                }
+                return false;
+            }
+            return true;
         }
     }
 }
